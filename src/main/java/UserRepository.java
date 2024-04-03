@@ -11,13 +11,19 @@ import java.util.UUID;
 public class UserRepository implements Repository<User> {
 
     //region [ - Field - ]
+
     private AccountRepository accountRepository;
+
     //endregion
 
     //region [ - Constructor - ]
+
+    //region [ - UserRepository() - ]
     public UserRepository() {
         accountRepository = new AccountRepository();
     }
+    //endregion
+
     //endregion
 
     //region [ - Methods - ]
