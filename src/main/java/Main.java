@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Main {
 
@@ -208,8 +209,7 @@ public class Main {
                     System.out.print("p" + (i + 1) + ". ");
                     displayPostBriefly(posts.get(i));
                 }
-            }
-            else {
+            } else {
                 int i = 0;
                 for (Post post : posts) {
                     System.out.print((i + 1) + ". ");
@@ -532,9 +532,31 @@ public class Main {
     //endregion
 
     public static void joinSubReddit(User user) {
-        System.out.println("Enter the number of SubReddit you wanna join :  ");
+        System.out.println("Enter the number of SubReddit you wanna join or 0 to go back :  ");
         Scanner scanner = new Scanner(System.in);
 
+        String command = scanner.nextLine();
+        switch (command) {
+            case "0":
+                displayAllSubReddits(user);
+                break;
+            default:
+                Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+                if (pattern.matcher(command).matches()) {
+                    int intCommand = Integer.parseInt(command);
+                    SubReddit subReddit = subRedditService.get().get(intCommand - 1);
+                    if (subReddit.getCreator().getId().equals(user.getId())) {
+                        System.out.printf("%sYou selected your own subreddit !%s", RED_COLOR, RESET_COLOR);
+                        displayAllSubReddits(user);
+                    }
+                    subRedditService = new SubRedditService();
+                    subRedditService.join(subReddit, user);
+                } else {
+                    System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+                    System.out.println();
+                    displayAllSubReddits(user);
+                }
+        }
     }
 
     //endregion

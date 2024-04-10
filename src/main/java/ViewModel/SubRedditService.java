@@ -120,7 +120,7 @@ public class SubRedditService {
 
     //region [ - join(SubReddit subReddit ,User user) - ]
     public void join(SubReddit subReddit, User user) {
-
+        userSubRedditRepository.insert(new UserSubReddit(user, subReddit, false));
     }
     //endregion
 
