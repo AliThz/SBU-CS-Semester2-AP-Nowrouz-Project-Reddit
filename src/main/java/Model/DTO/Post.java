@@ -1,3 +1,5 @@
+package Model.DTO;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -12,6 +14,30 @@ public class Post {
     }
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    private UUID subRedditId;
+    public UUID getSubRedditId() {
+        return subRedditId;
+    }
+    public void setSubRedditId(UUID subRedditId) {
+        this.subRedditId = subRedditId;
+    }
+
+    private SubReddit subReddit;
+    public SubReddit getSubReddit() {
+        return subReddit;
+    }
+    public void setSubReddit(SubReddit subReddit) {
+        this.subReddit = subReddit;
+    }
+
+    private UUID creatorId;
+    public UUID getCreatorId() {
+        return creatorId;
+    }
+    public void setCreatorId(UUID creatorId) {
+        this.creatorId = creatorId;
     }
 
     private User creator;
@@ -76,25 +102,32 @@ public class Post {
         this.date = date;
     }
 
+    private String information;
+    public String getInformation() {
+        return String.format("%s;%s;%s;%s;%s;%d;%d;%s;\n",id, subReddit.getId(), creator.getId(), title, message, upVotes, downVotes, date);
+    }
+
     //endregion
 
     //region [ - Constructor - ]
 
     //region [ - Post() - ]
     public Post() {
+        id = UUID.randomUUID();
         creator = new User();
         comments = new ArrayList<>();
+        date = LocalDate.now();
     }
     //endregion
 
-    //endregion
-
-    //region [ - Method - ]
-
-    //region [ - toString() - ]
-    @Override
-    public String toString() {
-        return String.format("%s;%s;%s;%s;%d;%d;%s;\n",id, creator.getId(), title, message, upVotes, downVotes, date);
+    //region [ - Post(SubReddit subReddit, User creator, String title, String message) - ]
+    public Post(SubReddit subReddit, User creator, String title, String message) {
+        id = UUID.randomUUID();
+        this.subReddit = subReddit;
+        this.creator = creator;
+        this.title = title;
+        this.message = message;
+        date = LocalDate.now();
     }
     //endregion
 

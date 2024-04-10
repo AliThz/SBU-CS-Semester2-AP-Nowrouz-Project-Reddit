@@ -1,18 +1,24 @@
+package Model.Repository;
+
+import Model.DTO.Account;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class AccountRepository implements Repository<Account> {
+public class AccountRepository implements IRepository<Account, UUID> {
 
     //region [ - Constructor - ]
+
+    //region [ - AccountRepository() - ]
     public AccountRepository() {
     }
+    //endregion
+
     //endregion
 
     //region [ - Methods - ]
@@ -21,7 +27,7 @@ public class AccountRepository implements Repository<Account> {
     @Override
     public void insert(Account account) {
         try {
-            FileWriter fileWriter = new FileWriter("Account.txt", true);
+            FileWriter fileWriter = new FileWriter("src/file/Account.txt", true);
             fileWriter.write(account.getInformation());
             fileWriter.close();
             System.out.println("Account successfully saves in the file.");
@@ -36,13 +42,13 @@ public class AccountRepository implements Repository<Account> {
     //region [ - insert(ArrayList<Account> accounts) - ]
     @Override
     public void insert(ArrayList<Account> accounts) {
-        File file = new File("Account.txt");
+        File file = new File("src/file/Account.txt");
         if (file.delete()) {
-            file = new File("Account.txt");
+            file = new File("src/file/Account.txt");
         }
         for (Account u : accounts) {
             try {
-                FileWriter fileWriter = new FileWriter("Account.txt", true);
+                FileWriter fileWriter = new FileWriter("src/file/Account.txt", true);
                 fileWriter.write(u.toString());
                 fileWriter.close();
                 System.out.println("Account successfully to the file.");
@@ -77,13 +83,21 @@ public class AccountRepository implements Repository<Account> {
     }
     //endregion
 
+    //region [ - delete(UUID id) - ]
+    public void delete(UUID id) {
+        ArrayList<Account> accounts = select();
+        accounts.remove(accounts.stream().filter(a -> a.getId().equals(id)).findFirst().get());
+        insert(accounts);
+    }
+    //endregion
+
     //region [ - select() - ]
     @Override
     public ArrayList<Account> select() {
         ArrayList<Account> accounts = new ArrayList<>();
         Account account = new Account();
         try {
-            File file = new File("Account.txt");
+            File file = new File("src/file/Account.txt");
             Scanner myReader = new Scanner(file).useDelimiter(";");
 
             int counter = 0;
@@ -112,7 +126,14 @@ public class AccountRepository implements Repository<Account> {
 
         return accounts;
     }
+    //endregion
 
+    //region [ - select(UUID id) - ]
+    @Override
+    public Account select(UUID id) {
+        Account account = select().stream().filter(a -> a.getId().equals(id)).findFirst().get();
+        return account;
+    }
     //endregion
 
     //endregion

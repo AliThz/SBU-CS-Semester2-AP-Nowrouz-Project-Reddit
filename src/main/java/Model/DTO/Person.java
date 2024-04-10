@@ -1,12 +1,6 @@
-import com.google.gson.Gson;
+package Model.DTO;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.UUID;
 
 public class Person {
@@ -108,22 +102,6 @@ public class Person {
 
     //region [ - Person() - ]
     public Person() {
-    }
-    //endregion
-
-    //region [ - Method - ]
-
-    //region [ - editPersonalInformation(Person person) - ]
-    public void editPersonalInformation(Person person) {
-        if (!account.getHasLoggedIn()) {
-            System.out.println("You haven't logged in");
-            return;
-        }
-        if (person.firstName != null) firstName = person.firstName;
-        if (person.lastName != null) lastName = person.lastName;
-        if (person.age != 0) age = person.age;
-        if (person.account.getEmail() != null) account.setEmail(person.account.getEmail());
-        if (person.account.getPassword() != null) account.setPassword(person.account.getPassword());
     }
     //endregion
 
