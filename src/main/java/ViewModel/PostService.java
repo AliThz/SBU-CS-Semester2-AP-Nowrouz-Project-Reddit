@@ -81,11 +81,11 @@ public class PostService {
     }
     //endregion
 
-
     //region [ - getBySubReddit(SubReddit subReddit) - ]
     public ArrayList<Post> getBySubReddit(SubReddit subReddit) {
         ArrayList<Post> posts = postRepository.select().stream().filter(p -> p.getSubReddit().getId().equals(subReddit.getId())).collect(Collectors.toCollection(ArrayList<Post>::new));
-        posts.forEach(p -> p.setComments(commentService.getByPost(p)));
+        if (!posts.isEmpty())
+            posts.forEach(p -> p.setComments(commentService.getByPost(p)));
         return posts;
     }
     //endregion
@@ -106,7 +106,6 @@ public class PostService {
         return posts;
     }
     //endregion
-
 
     //region [ - getBySubReddits(ArrayList<SubReddit>, User user) - ]
     public ArrayList<Post> getBySubReddits(User user) {

@@ -37,6 +37,13 @@ public class Comment extends Post {
     }
     //endregion
 
+    //region [ - Comment(SubReddit subReddit, User creator, String title, String message, Post repliedPost) - ]
+    public Comment(SubReddit subReddit, User creator, String title, String message, Post repliedPost) {
+        super(subReddit, creator, title, message);
+        this.repliedPost = repliedPost;
+    }
+    //endregion
+
     //endregion
 
 }

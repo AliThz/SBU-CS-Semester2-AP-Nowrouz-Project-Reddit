@@ -1,9 +1,6 @@
 package Model.Repository;
 
-import Model.DTO.Account;
-import Model.DTO.Comment;
-import Model.DTO.Post;
-import Model.DTO.User;
+import Model.DTO.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,6 +16,7 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
     //region [ - Field - ]
     private UserRepository userRepository;
     private PostRepository postRepository;
+    private SubRedditRepository subRedditRepository;
     //endregion
 
     //region [ - Constructor - ]
@@ -27,6 +25,7 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
     public CommentRepository() {
         userRepository = new UserRepository();
         postRepository = new PostRepository();
+        subRedditRepository = new SubRedditRepository();
     }
     //endregion
 
@@ -38,7 +37,6 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
     @Override
     public void insert(Comment comment) {
         try {
-
             FileWriter fileWriter = new FileWriter("src/file/Comment.txt");
             fileWriter.write(comment.getInformation());
             fileWriter.close();
@@ -109,6 +107,7 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
             Comment comment = new Comment();
             ArrayList<User> users = userRepository.select();
             ArrayList<Post> posts = postRepository.select();
+            ArrayList<SubReddit> subReddits = subRedditRepository.select();
 
             int counter = 0;
 
@@ -116,29 +115,35 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
                 counter++;
                 UUID creatorId = comment.getCreatorId();
                 UUID repliedPostId = comment.getRepliedPostId();
+                UUID subRedditId = comment.getSubRedditId();
 
                 switch (counter) {
                     case 1 -> comment.setId(UUID.fromString(myReader.next()));
-                    case 2 -> comment.setCreator(users.stream().filter(a -> a.getId().equals(creatorId)).findFirst().get());
-                    case 3 -> comment.setTitle(myReader.next());
-                    case 4 -> comment.setMessage(myReader.next());
-                    case 5 -> comment.setUpVotes(myReader.nextInt());
-                    case 6 -> comment.setDownVotes(myReader.nextInt());
-                    case 7 -> comment.setDate(LocalDate.parse(myReader.next()));
-                    case 8 -> comment.setRepliedPost(posts.stream().filter(p -> p.getId().equals(repliedPostId)).findFirst().get());
+                    case 2 -> comment.setCreator(users.stream().filter(u -> u.getId().equals(creatorId)).findFirst().get());
+                    case 3 -> comment.setSubReddit(subReddits.stream().filter(sr -> sr.getId().equals(creatorId)).findFirst().get());
+                    case 4 -> comment.setTitle(myReader.next());
+                    case 5 -> comment.setMessage(myReader.next());
+                    case 6 -> comment.setUpVotes(myReader.nextInt());
+                    case 7 -> comment.setDownVotes(myReader.nextInt());
+                    case 8 -> comment.setDate(LocalDate.parse(myReader.next()));
+                    case 9 -> comment.setRepliedPost(posts.stream().filter(p -> p.getId().equals(repliedPostId)).findFirst().get());
                 }
 
-                if (counter == 8 ) {
+                if (counter == 9 ) {
                     comments.add(comment);
                     counter = 0;
                     comment = new Comment();
                 }
 
                 if (counter == 1) {
+                    comment.setSubRedditId(UUID.fromString(myReader.next()));
+                }
+
+                if (counter == 2) {
                     comment.setCreatorId(UUID.fromString(myReader.next()));
                 }
 
-                if (counter == 7) {
+                if (counter == 8) {
                     comment.setRepliedPostId(UUID.fromString(myReader.next()));
                 }
             }

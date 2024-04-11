@@ -1,5 +1,6 @@
 package Model.DTO;
 
+import java.beans.Transient;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -55,7 +56,7 @@ public class Person {
         this.accountId = accountId;
     }
 
-    private Account account;
+    private transient Account account;
     public Account getAccount() {
         return account;
     }

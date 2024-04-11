@@ -32,6 +32,14 @@ public class SubReddit {
         this.creator = creator;
     }
 
+    private ArrayList<User> admins;
+    public ArrayList<User> getAdmins() {
+        return admins;
+    }
+    public void setAdmins(ArrayList<User> admins) {
+        this.admins = admins;
+    }
+
     private String title;
     public String getTitle() {
         return title;

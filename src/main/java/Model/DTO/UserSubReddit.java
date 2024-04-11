@@ -45,6 +45,14 @@ public class UserSubReddit {
         isOwned = owned;
     }
 
+    private boolean isAdmin;
+    public boolean isOwned() {
+        return isOwned;
+    }
+    public void setOwned(boolean owned) {
+        isOwned = owned;
+    }
+
     private String information;
     public String getInformation() {
         return String.format("%s;%s;%s;\n",user.getId(), subReddit.getId(), getIsOwned());
