@@ -118,9 +118,15 @@ public class SubRedditService {
     }
     //endregion
 
-    //region [ - join(SubReddit subReddit ,User user) - ]
+    //region [ - join(SubReddit subReddit, User user) - ]
     public void join(SubReddit subReddit, User user) {
         userSubRedditRepository.insert(new UserSubReddit(user, subReddit, false));
+    }
+    //endregion
+
+    //region [ - leave(SubReddit subReddit, User user) - ]
+    public void leave(UserSubReddit userSubReddit) {
+        userSubRedditRepository.delete(userSubReddit);
     }
     //endregion
 

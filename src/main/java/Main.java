@@ -1,7 +1,4 @@
-import Model.DTO.Account;
-import Model.DTO.Post;
-import Model.DTO.SubReddit;
-import Model.DTO.User;
+import Model.DTO.*;
 import Model.Repository.SubRedditRepository;
 import ViewModel.*;
 import com.google.gson.Gson;
@@ -92,6 +89,7 @@ public class Main {
 
     //region [ - runMainPage() - ]
     public static void runMainPage() {
+        System.out.println();
         displayHeader();
         displayTimeline();
         displayMainMenu();
@@ -120,6 +118,7 @@ public class Main {
 
     //region [ - runMainPage(User user) - ]
     public static void runMainPage(User user) {
+        System.out.println();
         displayHeader(user);
         displayTimeline(user);
         displayMainMenu(user);
@@ -128,11 +127,11 @@ public class Main {
         String command = scanner.next();
 
         switch (command) {
-            case "p1" -> displayTimeline();
-            case "p2" -> displayTimeline();
-            case "p3" -> displayTimeline();
-            case "p4" -> displayTimeline();
-            case "p5" -> displayTimeline();
+            case "p1" -> displayFromTimeline(user, 0);
+            case "p2" -> displayFromTimeline(user, 1);
+            case "p3" -> displayFromTimeline(user, 2);
+            case "p4" -> displayFromTimeline(user, 3);
+            case "p5" -> displayFromTimeline(user, 4);
             case "1" -> displayAllPosts(user);
             case "2" -> displayAllSubReddits(user);
             case "3" -> System.exit(0);
@@ -212,7 +211,7 @@ public class Main {
             } else {
                 int i = 0;
                 for (Post post : posts) {
-                    System.out.print((i + 1) + ". ");
+                    System.out.print("p" + (i + 1) + ". ");
                     displayPostBriefly(post);
                     i++;
                 }
@@ -267,13 +266,14 @@ public class Main {
             System.out.printf("%s%d.", BLUE_COLOR, counter);
             displaySubRedditBriefly(sr);
         }
-        System.out.printf("\n%s0. Back\n1. Join\n2. Create\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+        System.out.printf("\n%s0. Back\n1. Join\n2. Leave\n3. Create\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
         switch (command) {
             case "0" -> runMainPage(user);
             case "1" -> joinSubReddit(user);
-            case "2" -> createSubReddit(user);
+            case "2" -> leaveSubReddit(user);
+            case "3" -> createSubReddit(user);
             default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
         }
         System.out.println();
@@ -343,7 +343,7 @@ public class Main {
     public static void displayFromTimeline(int index) {
         System.out.println();
         postService = new PostService();
-        displayPostCompletely(postService.getByDate().get(index));
+        displayPostCompletely(postService.getTimeline().get(index));
         System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String postCommand = scanner.next();
@@ -356,9 +356,20 @@ public class Main {
     }
     //endregion
 
-    //region [ - displayFromTimeline(User user) - ]
-    public static void displayFromTimeline(User user) {
-
+    //region [ - displayFromTimeline(User user, int index) - ]
+    public static void displayFromTimeline(User user, int index) {
+        System.out.println();
+        postService = new PostService();
+        displayPostCompletely(postService.getTimeline(user).get(index));
+        System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+        String postCommand = scanner.next();
+        switch (postCommand) {
+            case "0" -> runMainPage(user);
+            default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+        }
+        System.out.println();
+        runMainPage();
     }
     //endregion
 
@@ -531,33 +542,70 @@ public class Main {
     }
     //endregion
 
+    //region [ - joinSubReddit(User user) - ]
     public static void joinSubReddit(User user) {
-        System.out.println("Enter the number of SubReddit you wanna join or 0 to go back :  ");
+        System.out.print("Enter the number of SubReddit you wanna join or 0 to go back :  ");
         Scanner scanner = new Scanner(System.in);
 
         String command = scanner.nextLine();
-        switch (command) {
-            case "0":
-                displayAllSubReddits(user);
-                break;
-            default:
-                Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
-                if (pattern.matcher(command).matches()) {
-                    int intCommand = Integer.parseInt(command);
-                    SubReddit subReddit = subRedditService.get().get(intCommand - 1);
-                    if (subReddit.getCreator().getId().equals(user.getId())) {
-                        System.out.printf("%sYou selected your own subreddit !%s", RED_COLOR, RESET_COLOR);
-                        displayAllSubReddits(user);
-                    }
+        if (command.equals("0")) {
+            displayAllSubReddits(user);
+        } else {
+            Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+            if (pattern.matcher(command).matches()) {
+                int intCommand = Integer.parseInt(command);
+                SubReddit subReddit = subRedditService.get().get(intCommand - 1);
+                if (subReddit.getCreator().getId().equals(user.getId())) {
+                    System.out.printf("%sYou selected your own subreddit !%s\n", RED_COLOR, RESET_COLOR);
+                    displayAllSubReddits(user);
+                } else if (user.getJoinedSubReddits().contains(subReddit)) {
+                    System.out.printf("%sYou have already joined this subreddit !%s\n", RED_COLOR, RESET_COLOR);
+                }else {
                     subRedditService = new SubRedditService();
                     subRedditService.join(subReddit, user);
-                } else {
-                    System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
-                    System.out.println();
-                    displayAllSubReddits(user);
+                    System.out.printf("%sYou have joined the subreddit successfully !\n%s", GREEN_COLOR, RESET_COLOR);
                 }
+            } else {
+                System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+                System.out.println();
+                displayAllSubReddits(user);
+            }
         }
     }
+    //endregion
+
+    //region [ - leaveSubReddit(User user) - ]
+    public static void leaveSubReddit(User user) {
+        System.out.print("Enter the number of SubReddit you wanna leave or 0 to go back :  ");
+        Scanner scanner = new Scanner(System.in);
+
+        String command = scanner.nextLine();
+        if (command.equals("0")) {
+            displayAllSubReddits(user);
+        } else {
+            Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+            if (pattern.matcher(command).matches()) {
+                int intCommand = Integer.parseInt(command);
+                SubReddit subReddit = subRedditService.get().get(intCommand - 1);
+                if (subReddit.getCreator().getId().equals(user.getId())) {
+                    System.out.printf("%sYou selected your own subreddit !%s\n", RED_COLOR, RESET_COLOR);
+                    displayAllSubReddits(user);
+//                } else if (!user.getJoinedSubReddits().forEach(s -> s)) {
+                } else if (user.getJoinedSubReddits().stream().filter(sr -> sr.getId().equals(subReddit.getId())).findAny().isEmpty()) {
+                    System.out.printf("%sYou haven't already joined this subreddit yet !%s\n", RED_COLOR, RESET_COLOR);
+                } else {
+                    subRedditService = new SubRedditService();
+                    subRedditService.leave(new UserSubReddit(user, subReddit));
+                    System.out.printf("%sYou have left the subreddit successfully !\n%s", GREEN_COLOR, RESET_COLOR);
+                }
+            } else {
+                System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+                System.out.println();
+                displayAllSubReddits(user);
+            }
+        }
+    }
+    //endregion
 
     //endregion
 }

@@ -152,14 +152,15 @@ public class UserService {
 
     //region [ - logIn(User user) - ]
     public User logIn(User user) {
-        for (User u : get()) {
-            Account a = u.getAccount();
-            if (Objects.equals(user.getAccount().getEmail(), a.getEmail()) && Objects.equals(user.getAccount().getPassword(), a.getPassword())) {
-                a.setHasLoggedIn(true);
-                this.user = u;
-                return u;
+        if (validateEmail(user.getAccount().getEmail()))
+            for (User u : get()) {
+                Account a = u.getAccount();
+                if (Objects.equals(user.getAccount().getEmail(), a.getEmail()) && Objects.equals(user.getAccount().getPassword(), a.getPassword())) {
+                    a.setHasLoggedIn(true);
+                    this.user = u;
+                    return u;
+                }
             }
-        }
         return null;
     }
     //endregion

@@ -67,6 +67,13 @@ public class UserSubReddit {
     }
     //endregion
 
+    //region [ - UserSubReddit(User user, SubReddit subReddit) - ]
+    public UserSubReddit(User user, SubReddit subReddit) {
+        this.user = user;
+        this.subReddit = subReddit;
+    }
+    //endregion
+
     //endregion
 
 }

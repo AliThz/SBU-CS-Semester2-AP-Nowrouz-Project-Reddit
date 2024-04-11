@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class UserSubRedditRepository {
 
@@ -38,7 +39,7 @@ public class UserSubRedditRepository {
             FileWriter fileWriter = new FileWriter("src/file/UserSubReddit.txt", true);
             fileWriter.write(userSubReddit.getInformation());
             fileWriter.close();
-            System.out.println("User successfully to the file.");
+            System.out.println("UserSubReddit successfully added to the file.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -48,20 +49,21 @@ public class UserSubRedditRepository {
 
     //region [ - insert(ArrayList<UserSubReddit> userSubReddits) - ]
     public void insert(ArrayList<UserSubReddit> userSubReddits) {
-        File file = new File("src/file/UserSubReddit.txt");
-        if (file.delete()) {
-            file = new File("src/file/UserSubReddit.txt");
-        }
-        for (var usr : userSubReddits) {
-            try {
-                FileWriter fileWriter = new FileWriter("src/file/UserSubReddit.txt", true);
+        try {
+            File file = new File("src/file/UserSubReddit.txt");
+            if(file.exists()){
+                file.delete();
+            }
+            FileWriter fileWriter = new FileWriter("src/file/UserSubReddit.txt");
+            for (var usr : userSubReddits) {
+                fileWriter = new FileWriter("src/file/UserSubReddit.txt", true);
                 fileWriter.write(usr.getInformation());
                 fileWriter.close();
-                System.out.println("User successfully to the file.");
-            } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
+//                System.out.println("UserSubReddit successfully added to the file.");
             }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
     }
     //endregion
@@ -77,7 +79,23 @@ public class UserSubRedditRepository {
     //region [ - delete(UserSubReddit userSubReddit) - ]
     public void delete(UserSubReddit userSubReddit) {
         ArrayList<UserSubReddit> userSubReddits = select();
-        userSubReddits.stream().filter(usr -> usr.getUserId() == userSubReddit.getUser().getId() && usr.getSubReddit().getId() == userSubReddit.getSubRedditId()).findFirst().ifPresent(this::delete);
+        userSubReddits.removeIf(usr -> usr.getUser().getId().equals(userSubReddit.getUser().getId()) && usr.getSubReddit().getId().equals(userSubReddit.getSubReddit().getId()));
+        insert(userSubReddits);
+    }
+    //endregion
+
+    //region [ - delete(SubReddit subReddit) - ]
+    public void delete(SubReddit subReddit) {
+        ArrayList<UserSubReddit> userSubReddits = select();
+        userSubReddits.stream().filter(usr -> usr.getSubReddit().getId() == subReddit.getId()).collect(Collectors.toCollection(ArrayList<UserSubReddit>::new)).forEach(userSubReddits::remove);
+        insert(userSubReddits);
+    }
+    //endregion
+
+    //region [ - delete(User user) - ]
+    public void delete(User user) {
+        ArrayList<UserSubReddit> userSubReddits = select();
+        userSubReddits.stream().filter(usr -> usr.getUser().getId() == user.getId()).collect(Collectors.toCollection(ArrayList<UserSubReddit>::new)).forEach(userSubReddits::remove);
         insert(userSubReddits);
     }
     //endregion
@@ -110,8 +128,10 @@ public class UserSubRedditRepository {
                 UUID subRedditId = userSubReddit.getSubRedditId();
 
                 switch (counter) {
-                    case 1 -> userSubReddit.setUser(users.stream().filter(u -> u.getId().equals(userId)).findFirst().get());
-                    case 2 -> userSubReddit.setSubReddit(subReddits.stream().filter(sr -> sr.getId().equals(subRedditId)).findFirst().get());
+                    case 1 ->
+                            userSubReddit.setUser(users.stream().filter(u -> u.getId().equals(userId)).findFirst().get());
+                    case 2 ->
+                            userSubReddit.setSubReddit(subReddits.stream().filter(sr -> sr.getId().equals(subRedditId)).findFirst().get());
                     case 3 -> userSubReddit.setIsOwned(myReader.nextBoolean());
                 }
 
