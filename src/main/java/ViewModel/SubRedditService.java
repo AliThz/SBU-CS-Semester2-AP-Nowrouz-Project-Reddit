@@ -82,11 +82,16 @@ public class SubRedditService {
     //endregion
 
     //region [ - edit(SubReddit subReddit, User user) - ]
-    public void edit(SubReddit subReddit, User user) {
+    public SubReddit edit(SubReddit subReddit, User user) {
         if (!user.getAccount().getHasLoggedIn())
             System.out.println("You should login first !");
-        else
+        else {
+            subReddit.setCreator(user);
             subRedditRepository.update(subReddit);
+            userSubRedditRepository.update(new UserSubReddit(user, subReddit, true));
+            return subReddit;
+        }
+        return null;
     }
     //endregion
 

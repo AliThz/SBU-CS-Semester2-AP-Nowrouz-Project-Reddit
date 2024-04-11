@@ -388,7 +388,7 @@ public class Main {
             System.out.printf("%s%d.", BLUE_COLOR, counter);
             displaySubRedditBriefly(sr);
         }
-        System.out.printf("\n%s0. Back\n1. Open\n2. Create\n3. Update\n4. Remove\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+        System.out.printf("\n%s0. Back\n1. Open\n2. Create\n3. Edit\n4. Remove\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
         System.out.println();
@@ -404,7 +404,8 @@ public class Main {
                 createSubReddit(user);
                 break;
             case "3":
-//                updateSubReddit(user);
+                subReddit = chooseSubReddit(user, subReddits);
+                editSubReddit(subReddit, user);
                 break;
             case "4":
                 subReddit = chooseSubReddit(user, subReddits);
@@ -559,6 +560,37 @@ public class Main {
             switch (command) {
                 case "0" -> displayAllSubReddits(user);
                 case "1" -> createSubReddit(user);
+                default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+            }
+            System.out.println();
+            runMainPage();
+        } else {
+            System.out.printf("%sSubReddit created successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
+            displayOwnedSubReddits(user);
+        }
+    }
+    //endregion
+
+    //region [ - editSubReddit(SubReddit subReddit, User user) - ]
+    public static void editSubReddit(SubReddit subReddit, User user) {
+        subRedditService = new SubRedditService();
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.printf("Title ( old : %s ) :  ", subReddit.getTitle());
+        subReddit.setTitle(scanner.nextLine());
+
+        System.out.printf("Description ( old : %s ) :  ", subReddit.getDescription());
+        subReddit.setDescription(scanner.nextLine());
+
+        SubReddit createdSubReddit = subRedditService.edit(subReddit, user);
+        if (createdSubReddit == null) {
+            System.out.printf("%sPlease choose another title%s\n", RED_COLOR, RESET_COLOR);
+            System.out.printf("\n%s0. Back\n1. Edit SubReddit\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+            String command = scanner.next();
+            System.out.println();
+            switch (command) {
+                case "0" -> displayOwnedSubReddits(user);
+                case "1" -> editSubReddit(subReddit, user);
                 default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
             }
             System.out.println();

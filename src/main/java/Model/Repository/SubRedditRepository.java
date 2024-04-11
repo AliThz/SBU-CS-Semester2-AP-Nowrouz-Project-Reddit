@@ -48,31 +48,12 @@ public class SubRedditRepository implements IRepository<SubReddit, UUID> {
     //region [ - insert(ArrayList<SubReddit> subReddits) - ]
     @Override
     public void insert(ArrayList<SubReddit> subReddits) {
-//        File file = new File("src/file/SubReddit.txt");
-//        if (file.delete()) {
-//            file = new File("src/file/SubReddit.txt");
-//        }
-//        for (SubReddit p : subReddits) {
-//            try {
-//                if (file.createNewFile()) {
-//                    FileWriter fileWriter = new FileWriter("src/file/SubReddit.txt");
-//                    fileWriter.write(p.getInformation());
-//                    fileWriter.close();
-//                    System.out.println("SubReddit successfully to the file.");
-//                }
-//            } catch (IOException e) {
-//                System.out.println("An error occurred.");
-//                e.printStackTrace();
-//            }
-//        }
-
         try {
             FileWriter fileWriter = new FileWriter("src/file/SubReddit.txt", false);
             PrintWriter printWriter = new PrintWriter(fileWriter, false);
             printWriter.flush();
             printWriter.close();
             fileWriter.close();
-
             subReddits.forEach(this::insert);
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -86,8 +67,9 @@ public class SubRedditRepository implements IRepository<SubReddit, UUID> {
     @Override
     public void update(SubReddit subReddit) {
         ArrayList<SubReddit> subReddits = select();
-        subReddits.stream().filter(p -> p.getId() == subReddit.getId()).findFirst().ifPresent(this::delete);
-        insert(subReddit);
+        subReddits.stream().filter(sr -> sr.getId().equals(subReddit.getId())).findFirst().ifPresent(subReddits::remove);
+        subReddits.add(subReddit);
+        insert(subReddits);
     }
     //endregion
 

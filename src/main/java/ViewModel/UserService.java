@@ -152,7 +152,7 @@ public class UserService {
 
     //region [ - logIn(User user) - ]
     public User logIn(User user) {
-        if (validateEmail(user.getAccount().getEmail()))
+        if (validateEmail(user.getAccount().getEmail()) && validatePassword(user.getAccount().getPassword()))
             for (User u : get()) {
                 Account a = u.getAccount();
                 if (Objects.equals(user.getAccount().getEmail(), a.getEmail()) && Objects.equals(user.getAccount().getPassword(), a.getPassword())) {

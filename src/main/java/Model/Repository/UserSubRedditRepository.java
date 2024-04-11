@@ -5,10 +5,7 @@ import Model.DTO.SubReddit;
 import Model.DTO.User;
 import Model.DTO.UserSubReddit;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -50,17 +47,12 @@ public class UserSubRedditRepository {
     //region [ - insert(ArrayList<UserSubReddit> userSubReddits) - ]
     public void insert(ArrayList<UserSubReddit> userSubReddits) {
         try {
-            File file = new File("src/file/UserSubReddit.txt");
-            if(file.exists()){
-                file.delete();
-            }
-            FileWriter fileWriter = new FileWriter("src/file/UserSubReddit.txt");
-            for (var usr : userSubReddits) {
-                fileWriter = new FileWriter("src/file/UserSubReddit.txt", true);
-                fileWriter.write(usr.getInformation());
-                fileWriter.close();
-//                System.out.println("UserSubReddit successfully added to the file.");
-            }
+            FileWriter fileWriter = new FileWriter("src/file/UserSubReddit.txt", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+            userSubReddits.forEach(this::insert);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -71,8 +63,9 @@ public class UserSubRedditRepository {
     //region [ - update(UserSubReddit userSubReddit) - ]
     public void update(UserSubReddit userSubReddit) {
         ArrayList<UserSubReddit> userSubReddits = select();
-        userSubReddits.stream().filter(usr -> usr.getUserId() == userSubReddit.getUser().getId() && usr.getSubRedditId() == userSubReddit.getSubReddit().getId()).findFirst().ifPresent(this::delete);
-        insert(userSubReddit);
+        userSubReddits.stream().filter(usr -> usr.getUserId() == userSubReddit.getUser().getId() && usr.getSubRedditId() == userSubReddit.getSubReddit().getId()).findFirst().ifPresent(userSubReddits::remove);
+        userSubReddits.add(userSubReddit);
+        insert(userSubReddits);
     }
     //endregion
 
