@@ -110,7 +110,8 @@ public class SubRedditService {
 
     //region [ - getJoinedSubReddit(User user) - ]
     public ArrayList<SubReddit> getJoinedSubReddit(User user) {
-        ArrayList<SubReddit> subReddits = (ArrayList<SubReddit>) userSubRedditRepository.select().stream().filter(sr -> sr.getUser().getId().equals(user.getId()) && !sr.getSubReddit().getCreator().getId().equals(user.getId())).map(UserSubReddit::getSubReddit).toList();
+//        ArrayList<SubReddit> subReddits = (ArrayList<SubReddit>) userSubRedditRepository.select().stream().filter(sr -> sr.getUser().getId().equals(user.getId()) && !sr.getSubReddit().getCreator().getId().equals(user.getId())).map(UserSubReddit::getSubReddit).toList();
+        ArrayList<SubReddit> subReddits = user.getJoinedSubReddits();
         subReddits.forEach(sr -> sr.setPosts(postService.getBySubReddit(sr)));
         return subReddits;
     }
