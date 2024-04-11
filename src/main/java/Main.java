@@ -172,7 +172,7 @@ public class Main {
     }
 //endregion
 
-//endregion
+    //endregion
 
     //region [ - displayHeader - ]
 
@@ -275,6 +275,7 @@ public class Main {
             System.out.printf("%sPlease check your entered information%s\n", RED_COLOR, RESET_COLOR);
             System.out.printf("\n%s0. Back\n1. Signup\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
             String command = scanner.next();
+            System.out.println();
             switch (command) {
                 case "0" -> runMainPage();
                 case "1" -> signUp();
@@ -310,6 +311,7 @@ public class Main {
         System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
+        System.out.println();
         switch (command) {
             case "0" -> runMainPage();
             default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
@@ -335,6 +337,7 @@ public class Main {
         System.out.printf("\n%s0. Back\n1. Join\n2. Leave\n3. Create\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
+        System.out.println();
         switch (command) {
             case "0" -> runMainPage(user);
             case "1" -> joinSubReddit(user);
@@ -357,6 +360,7 @@ public class Main {
         System.out.printf("\n%s0. Back\n1. My Own SubReddits\n2. Joined SubReddits\nEnter your choice :  %s", BLUE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
+        System.out.println();
         switch (command) {
             case "0" -> runMainPage(user);
             case "1" -> displayOwnedSubReddits(user);
@@ -387,6 +391,7 @@ public class Main {
         System.out.printf("\n%s0. Back\n1. Open\n2. Create\n3. Update\n4. Remove\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
+        System.out.println();
         switch (command) {
             case "0":
                 displayMySubReddits(user);
@@ -419,6 +424,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         String command = scanner.nextLine();
+        System.out.println();
         if (command.equals("0")) {
             displayOwnedSubReddits(user);
         } else {
@@ -459,6 +465,7 @@ public class Main {
         System.out.printf("\n%s0. Back\n1. Join\n2. Leave\n3. Create\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
+        System.out.println();
         switch (command) {
             case "0" -> runMainPage(user);
             case "1" -> joinSubReddit(user);
@@ -490,6 +497,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         String command = scanner.nextLine();
+        System.out.println();
         if (command.equals("0")) {
             displayOwnedSubReddits(user);
         } else {
@@ -546,6 +554,7 @@ public class Main {
             System.out.printf("%sPlease choose another title%s\n", RED_COLOR, RESET_COLOR);
             System.out.printf("\n%s0. Back\n1. Create SubReddit\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
             String command = scanner.next();
+            System.out.println();
             switch (command) {
                 case "0" -> displayAllSubReddits(user);
                 case "1" -> createSubReddit(user);
@@ -720,6 +729,7 @@ public class Main {
                     } else {
                         System.out.printf("%s\n0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
                         postCommand = scanner.nextLine();
+                        System.out.println();
                         displayAllPosts(user);
                     }
 
@@ -747,6 +757,7 @@ public class Main {
         System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String postCommand = scanner.next();
+        System.out.println();
         switch (postCommand) {
             case "0" -> runMainPage();
             default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
@@ -764,6 +775,7 @@ public class Main {
         System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String postCommand = scanner.next();
+        System.out.println();
         switch (postCommand) {
             case "0" -> runMainPage(user);
             default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
@@ -795,6 +807,7 @@ public class Main {
         postService = new PostService();
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
+        System.out.println();
         switch (command) {
             case "0" -> {
             }
