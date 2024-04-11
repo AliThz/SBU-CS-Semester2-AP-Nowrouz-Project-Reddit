@@ -5,10 +5,7 @@ import Model.DTO.SubReddit;
 import Model.DTO.User;
 import Model.DTO.UserSubReddit;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -51,23 +48,37 @@ public class SubRedditRepository implements IRepository<SubReddit, UUID> {
     //region [ - insert(ArrayList<SubReddit> subReddits) - ]
     @Override
     public void insert(ArrayList<SubReddit> subReddits) {
-        File file = new File("src/file/SubReddit.txt");
-        if (file.delete()) {
-            file = new File("src/file/SubReddit.txt");
+//        File file = new File("src/file/SubReddit.txt");
+//        if (file.delete()) {
+//            file = new File("src/file/SubReddit.txt");
+//        }
+//        for (SubReddit p : subReddits) {
+//            try {
+//                if (file.createNewFile()) {
+//                    FileWriter fileWriter = new FileWriter("src/file/SubReddit.txt");
+//                    fileWriter.write(p.getInformation());
+//                    fileWriter.close();
+//                    System.out.println("SubReddit successfully to the file.");
+//                }
+//            } catch (IOException e) {
+//                System.out.println("An error occurred.");
+//                e.printStackTrace();
+//            }
+//        }
+
+        try {
+            FileWriter fileWriter = new FileWriter("src/file/SubReddit.txt", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+
+            subReddits.forEach(this::insert);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
-        for (SubReddit p : subReddits) {
-            try {
-                if (file.createNewFile()) {
-                    FileWriter fileWriter = new FileWriter("src/file/SubReddit.txt");
-                    fileWriter.write(p.getInformation());
-                    fileWriter.close();
-                    System.out.println("SubReddit successfully to the file.");
-                }
-            } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-            }
-        }
+
     }
     //endregion
 
@@ -83,9 +94,7 @@ public class SubRedditRepository implements IRepository<SubReddit, UUID> {
     //region [ - delete(SubReddit subReddit) - ]
     @Override
     public void delete(SubReddit subReddit) {
-        ArrayList<SubReddit> subReddits = select();
-        subReddits.remove(subReddit);
-        insert(subReddits);
+        delete(subReddit.getId());
     }
     //endregion
 

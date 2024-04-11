@@ -401,13 +401,14 @@ public class Main {
                 displaySubRedditCompletely(user, subReddit);
                 break;
             case "2":
-                leaveSubReddit(user);
+                createSubReddit(user);
                 break;
             case "3":
-                createSubReddit(user);
+//                updateSubReddit(user);
                 break;
             case "4":
-                createSubReddit(user);
+                subReddit = chooseSubReddit(user, subReddits);
+                removeSubReddit(subReddit, user);
                 break;
             default:
                 System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
@@ -523,7 +524,7 @@ public class Main {
 
     //region [ - displaySubRedditBriefly(SubReddit subReddit) - ]
     public static void displaySubRedditBriefly(SubReddit subReddit) {
-        System.out.printf("%s%s, Ttile : %s, Date : %s%s\n", BLUE_COLOR, subReddit.getTitle(), subReddit.getDescription(), subReddit.getDate(), BLUE_COLOR);
+        System.out.printf("%sTitle : %s, Description : %s, Date : %s%s\n", BLUE_COLOR, subReddit.getTitle(), subReddit.getDescription(), subReddit.getDate(), BLUE_COLOR);
         ArrayList<Post> posts = subReddit.getPosts();
         if (posts != null) {
             posts.sort(Comparator.comparing(Post::getDate));
@@ -564,7 +565,19 @@ public class Main {
             runMainPage();
         } else {
             System.out.printf("%sSubReddit created successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
-            displayAllSubReddits(user);
+            displayOwnedSubReddits(user);
+        }
+    }
+    //endregion
+
+    //region [ - removeSubReddit(SubReddit subReddit, User user) - ]
+    public static void removeSubReddit(SubReddit subReddit, User user) {
+        if (subReddit.getCreator().getId().equals(user.getId())) {
+            subRedditService = new SubRedditService();
+            subRedditService.remove(subReddit, user);
+        }
+        else {
+            System.out.printf("%sYou cant remove this subreddit !\n%s", RED_COLOR, RESET_COLOR);
         }
     }
     //endregion

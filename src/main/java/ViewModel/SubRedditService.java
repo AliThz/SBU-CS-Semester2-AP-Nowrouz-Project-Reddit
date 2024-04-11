@@ -8,6 +8,7 @@ import Model.Repository.UserSubRedditRepository;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SubRedditService {
 
@@ -94,8 +95,9 @@ public class SubRedditService {
         if (!user.getAccount().getHasLoggedIn())
             System.out.println("You should login first");
         else {
+            userSubRedditRepository.select().stream().filter(usr -> usr.getSubReddit().getId().equals(subReddit.getId())).collect(Collectors.toCollection(ArrayList<UserSubReddit>::new)).forEach(userSubRedditRepository::delete);
             subReddit.setPosts(postService.getBySubReddit(subReddit));
-            subReddit.getPosts().forEach(sr -> postService.remove(sr, user));
+            subReddit.getPosts().forEach(p -> postService.remove(p, user));
             subRedditRepository.delete(subReddit);
         }
     }
