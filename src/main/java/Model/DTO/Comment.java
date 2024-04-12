@@ -24,7 +24,7 @@ public class Comment extends Post {
 
     @Override
     public String getInformation() {
-        return super.getInformation() + String.format("%s", repliedPost.getId());
+        return super.getInformation() + String.format("%s;", repliedPost.getId());
     }
 
     //endregion

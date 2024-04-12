@@ -105,6 +105,14 @@ public class PostService {
     }
     //endregion
 
+    //region [ - getByUserCommented(User user) - ]
+    public ArrayList<Post> getByUserCommented(User user) {
+        ArrayList<Post> posts = postRepository.select().stream().filter(p -> p.getComments().stream().anyMatch(c -> c.getCreator().getId().equals(user.getId()))).collect(Collectors.toCollection(ArrayList::new));
+        posts.forEach(p -> p.setComments(commentService.getByPost(p)));
+        return posts;
+    }
+    //endregion
+
     //region [ - getByDate() - ]
     public ArrayList<Post> getByDate() {
         ArrayList<Post> posts = postRepository.select();

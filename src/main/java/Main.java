@@ -71,24 +71,23 @@ public class Main {
 //        Model.DTO.User user = gson.fromJson(jsonObject, Model.DTO.User.class);
 //        System.out.println(user.getFirstName());
 
-
-        userService = new UserService();
+//        userService = new UserService();
 //        UserService userService1 = new UserService();
 //        User user = new User("User6", "User", "6", 23, new Account("User6@gmail.com", "Abc!@#123"));
 //        userService.create(user);
 //
 //
-        subRedditService = new SubRedditService();
+
+//        subRedditService = new SubRedditService();
 //        SubReddit subReddit = new SubReddit(user, "SubReddit 6", "Sixth SubReddit");
 //        subRedditService.create(subReddit, user);
 
-
-        postService = new PostService();
+//        postService = new PostService();
 //        SubReddit sr1 = subRedditService.getById(UUID.fromString("755819e8-d53d-427b-9956-98263d9ad715"));
 //        User u1 = userService.getById(UUID.fromString("c7e85981-e62f-40b4-9ca8-fcb22fc99283"));
 //        Post post = new Post(sr1,u1,"Post 2", "This is Post 2");
 //        postService.create(post, u1);
-
+//        System.out.println(UUID.randomUUID());
         runMainPage();
     }
     //endregion
@@ -474,7 +473,6 @@ public class Main {
         }
         SubReddit subReddit = chooseSubReddit(null, subReddits, u -> runMainPage());
         displaySubRedditCompletely(null, subReddit, u -> displayAllSubReddits());
-
     }
     //endregion
 
@@ -491,8 +489,26 @@ public class Main {
             System.out.printf("%s%d.", BLUE_COLOR, counter);
             displaySubRedditBriefly(sr);
         }
-        SubReddit subReddit = chooseSubReddit(user, subReddits, u -> runMainPage(u));
-        displaySubRedditCompletely(user, subReddit, u -> displayAllSubReddits(u));
+
+        System.out.printf("\n%s0. Back\n1. Open\n2. Join\n\n%sEnter your desirable command :  ", WHITE_COLOR, RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+        String command = scanner.nextLine();
+        switch (command) {
+            case "0":
+                runMainPage(user);
+                break;
+            case "1":
+                SubReddit subReddit = chooseSubReddit(user, subReddits, u -> runMainPage(u));
+                displaySubRedditCompletely(user, subReddit, u -> displayAllSubReddits(u));
+                break;
+            case "2":
+                joinSubReddit(user);
+                break;
+            default:
+                System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+                System.out.println();
+                displayAllSubReddits(user);
+        }
     }
     //endregion
 
@@ -839,7 +855,7 @@ public class Main {
             }
         }
     }
-//endregion
+    //endregion
 
     //region [ - leaveSubReddit(User user, SubReddit subReddit) - ]
     public static void leaveSubReddit(User user, SubReddit subReddit) {
@@ -915,7 +931,6 @@ public class Main {
         System.out.printf("    %sPosts%s\n", GREEN_COLOR, RESET_COLOR);
         postService = new PostService();
         commentService = new CommentService();
-//        postService.get().forEach(Main::displayPostBriefly);
         int counter = 0;
         ArrayList<Post> posts = postService.getByDate();
         for (Post p : posts) {
@@ -946,7 +961,7 @@ public class Main {
                         postCommand = scanner.nextLine();
                         switch (postCommand) {
                             case "0" -> displayAllPosts(user);
-                            case "1" -> leaveComment(user, post);
+                            case "1" -> createComment(user);
                             case "2" -> postService.vote(post, user, true);
                             case "3" -> postService.vote(post, user, false);
                         }
@@ -969,7 +984,7 @@ public class Main {
             }
         }
     }
-//endregion
+    //endregion
 
     //region [ - displayFromTimeline - ]
 
@@ -1025,7 +1040,7 @@ public class Main {
         displayReddit();
         System.out.printf("    %sPost%s\n", GREEN_COLOR, RESET_COLOR);
         System.out.printf("%sSubReddit : %s\n%sTitle : %s\n%s%s\n%sUpVotes : %s , Karma : %s , DownVotes : %s\n", PURPLE_COLOR, post.getSubReddit().getTitle(), BLUE_COLOR, post.getTitle(), CYAN_COLOR, post.getMessage(), YELLOW_COLOR, post.getUpVotes(), post.getKarma(), post.getDownVotes());
-        post.getComments().forEach(c -> System.out.printf("%s%s\n%s%s", RESET_COLOR, RESET_COLOR, c.getCreator().getUsername(), c.getMessage()));
+        post.getComments().forEach(Main::displayCommentBriefly);
 
         if (user != null)
             System.out.printf("%s0. Back\n1. Comment\n2. Up Vote\n3. Down Vote\n4. Edit\n5. Remove\n\n%sEnter your desirable command :  ", WHITE_COLOR, RESET_COLOR);
@@ -1040,7 +1055,7 @@ public class Main {
             switch (command) {
                 case "0" -> {
                 }
-                case "1" -> leaveComment(user, post);
+                case "1" -> createComment(user);
                 case "2" -> postService.vote(post, user, true);
                 case "3" -> postService.vote(post, user, false);
                 case "4" -> editPost(user, post);
@@ -1155,7 +1170,7 @@ public class Main {
     //endregion
 
     //region [ - editPost(Post post,User user) - ]
-    public static void editPost(Post post,User user) {
+    public static void editPost(Post post, User user) {
         postService = new PostService();
 
         Scanner scanner = new Scanner(System.in);
@@ -1203,13 +1218,15 @@ public class Main {
         System.out.println();
         displayReddit();
         System.out.printf("    %sMy Posts%s\n", GREEN_COLOR, RESET_COLOR);
-        System.out.printf("%s0. Back\n1. My Own Posts\n\nEnter your choice :  %s", BLUE_COLOR, RESET_COLOR);
+        System.out.printf("%s0. Back\n1. My Own Posts\n2. Posts I have comment on\n3. Posts I have voted\n\nEnter your choice :  %s", BLUE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
         System.out.println();
         switch (command) {
             case "0" -> runMainPage(user);
             case "1" -> displayOwnedPosts(user);
+            case "2" -> displayCommentedPosts(user);
+            case "3" -> displayVotedPosts(user);
             default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
         }
         System.out.println();
@@ -1267,28 +1284,131 @@ public class Main {
     }
     //endregion
 
+    //region [ - displayCommentedPosts(User user) - ]
+    public static void displayCommentedPosts(User user) {
+        displayReddit();
+        System.out.printf("    %sPosts I have commented on%s\n", GREEN_COLOR, RESET_COLOR);
+
+        postService = new PostService();
+
+        ArrayList<Post> posts = postService.getByUserCommented(user);
+        int counter = 0;
+        if (posts.isEmpty())
+            System.out.println("You haven't commented on any post yet !");
+        else
+            for (Post p : posts) {
+                counter++;
+                System.out.printf("%s%d.", BLUE_COLOR, counter);
+                displayPostBriefly(p);
+            }
+
+        System.out.printf("\n%s0. Back\n1. Open Comment\n2. Create Comment\n3. Edit Comment\n4. Remove Comment\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+        String command = scanner.next();
+        System.out.println();
+        switch (command) {
+            case "0":
+                displayMyPosts(user);
+                break;
+            case "1":
+                Post post = choosePost(user, posts, Main::displayOwnedPosts);
+                displayPostCompletely(user, post);
+                break;
+            case "2":
+                System.out.print("Dou wanna create a comment ? (y/n) ");
+                command = scanner.next();
+                if (Objects.equals(command, "y"))
+                    createComment(user);
+                else displayCommentedPosts(user);
+                break;
+            case "3":
+                post = choosePost(user, posts, Main::displayCommentedPosts);
+                editPost(post, user);
+                break;
+            case "4":
+                post = choosePost(user, posts, Main::displayCommentedPosts);
+                removePost(post, user);
+                break;
+            default:
+                System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+        }
+        System.out.println();
+        displayCommentedPosts(user);
+    }
+    //endregion
+
+    //region [ - displayVotedPosts(User user) - ]
+    public static void displayVotedPosts(User user) {
+
+    }
+    //endregion
+
     //endregion
 
     //region { --- Comment --- }
 
-    //region [ - leaveComment(User user, Post post) - ]
-    public static void leaveComment(User user, Post post) {
+    //region [ - createComment(User user) - ]
+    public static void createComment(User user) {
+        postService = new PostService();
         commentService = new CommentService();
         Scanner scanner = new Scanner(System.in);
-        String title, message;
         System.out.print("Title :  ");
-        title = scanner.nextLine();
-//        scanner.nextLine();
+        String title = scanner.nextLine();
         System.out.print("Message :  ");
-        message = scanner.nextLine();
+        String message = scanner.nextLine();
+        Post post = choosePost(user, postService.getByUserCommented(user), Main::displayCommentedPosts);
         Comment comment = new Comment(post.getSubReddit(), user, title, message, post);
         commentService.create(comment, user);
     }
-//endregion
+    //endregion
+
+    //region [ - displayCommentBriefly(Comment comment) - ]
+    public static void displayCommentBriefly(Comment comment) {
+        System.out.printf("%s%s\n%s%s", RESET_COLOR, RESET_COLOR, comment.getCreator().getUsername(), comment.getMessage());
+    }
+    //endregion
+
+    //region [ - displayCommentCompletely(Comment comment) - ]
+    public static void displayCommentCompletely(Comment comment) {
+        postService = new PostService();
+        Post post = postService.getById(comment.getRepliedPost().getId());
+        System.out.printf("Post ( by %s ) : \" %s \" : %s\n%s%s\n%s%s", RESET_COLOR, RESET_COLOR, post.getCreator().getUsername(), post.getTitle(), post.getMessage(), comment.getCreator().getUsername(), comment.getMessage());
+    }
+    //endregion
+
+    //region [ - choosePost(User user, ArrayList<Comment> comments, Consumer<User> goBack) - ]
+    public static Comment chooseComment(User user, ArrayList<Comment> comments, Consumer<User> goBack) {
+        System.out.printf("\n%sEnter the number of comment you wanna choose or 0 to go back :  ", RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+
+        String command = scanner.nextLine();
+        System.out.println();
+        if (command.equals("0")) {
+            goBack.accept(user);
+        } else {
+            Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+            if (pattern.matcher(command).matches()) {
+                int intCommand = Integer.parseInt(command);
+                if (intCommand <= comments.size()) {
+                    return comments.get(intCommand - 1);
+                } else {
+                    System.out.printf("%sEnter a correct command !%s\n", RED_COLOR, RESET_COLOR);
+                    System.out.println();
+                    goBack.accept(user);
+                }
+            } else {
+                System.out.printf("%sEnter a correct command !%s\n", RED_COLOR, RESET_COLOR);
+                System.out.println();
+                goBack.accept(user);
+            }
+        }
+        return null;
+    }
 
     //endregion
 
-//endregion
+    //endregion
 
+    //endregion
 
 }
