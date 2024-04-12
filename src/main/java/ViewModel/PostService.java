@@ -78,7 +78,7 @@ public class PostService {
         if (!user.getAccount().getHasLoggedIn())
             System.out.println("You should login first");
         else {
-            post.setComments(commentService.getByPost(post));
+            userPostRepository.select().stream().filter(up -> up.getPost().getId().equals(post.getId())).collect(Collectors.toCollection(ArrayList<UserPost>::new)).forEach(userPostRepository::delete);
             post.getComments().forEach(c -> commentService.remove(c, user));
             postRepository.delete(post);
         }

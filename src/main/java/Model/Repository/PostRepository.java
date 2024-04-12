@@ -1,20 +1,15 @@
 package Model.Repository;
 
-import Model.DTO.Account;
-import Model.DTO.Post;
-import Model.DTO.SubReddit;
-import Model.DTO.User;
+import Model.DTO.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PostRepository implements IRepository<Post, UUID> {
 
@@ -43,7 +38,7 @@ public class PostRepository implements IRepository<Post, UUID> {
             FileWriter fileWriter = new FileWriter("src/file/Post.txt", true);
             fileWriter.write(post.getInformation());
             fileWriter.close();
-            System.out.println("Post successfully to the file.");
+//            System.out.println("Post successfully to the file.");
 
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -55,20 +50,16 @@ public class PostRepository implements IRepository<Post, UUID> {
     //region [ - insert(ArrayList<Post> posts) - ]
     @Override
     public void insert(ArrayList<Post> posts) {
-        File file = new File("src/file/Post.txt");
-        if (file.delete()) {
-            file = new File("src/file/Post.txt");
-        }
-        for (Post p : posts) {
-            try {
-                FileWriter fileWriter = new FileWriter("src/file/Post.txt");
-                fileWriter.write(p.getInformation());
-                fileWriter.close();
-                System.out.println("Post successfully to the file.");
-            } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-            }
+        try {
+            FileWriter fileWriter = new FileWriter("src/file/Post.txt", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+            posts.forEach(this::insert);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
     }
     //endregion
@@ -86,7 +77,7 @@ public class PostRepository implements IRepository<Post, UUID> {
     @Override
     public void delete(Post post) {
         ArrayList<Post> posts = select();
-        posts.remove(post);
+        posts.stream().filter(p -> p.getId().equals(post.getId())).collect(Collectors.toCollection(ArrayList<Post>::new)).forEach(posts::remove);
         insert(posts);
     }
     //endregion

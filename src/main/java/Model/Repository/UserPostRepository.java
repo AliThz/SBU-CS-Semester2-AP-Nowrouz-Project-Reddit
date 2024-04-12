@@ -2,14 +2,12 @@ package Model.Repository;
 
 import Model.DTO.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class UserPostRepository {
 
@@ -37,7 +35,7 @@ public class UserPostRepository {
             FileWriter fileWriter = new FileWriter("src/file/UserPost.txt", true);
             fileWriter.write(userpost.getInformation());
             fileWriter.close();
-            System.out.println("User successfully to the file.");
+//            System.out.println("User successfully to the file.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -47,20 +45,16 @@ public class UserPostRepository {
 
     //region [ - insert(ArrayList<UserPost> userposts) - ]
     public void insert(ArrayList<UserPost> userposts) {
-        File file = new File("src/file/UserPost.txt");
-        if (file.delete()) {
-            file = new File("src/file/UserPost.txt");
-        }
-        for (var up : userposts) {
-            try {
-                FileWriter fileWriter = new FileWriter("src/file/UserPost.txt", true);
-                fileWriter.write(up.getInformation());
-                fileWriter.close();
-                System.out.println("User successfully to the file.");
-            } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-            }
+        try {
+            FileWriter fileWriter = new FileWriter("src/file/UserPost.txt", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+            userposts.forEach(this::insert);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
     }
     //endregion
@@ -75,9 +69,9 @@ public class UserPostRepository {
 
     //region [ - delete(UserPost userpost) - ]
     public void delete(UserPost userpost) {
-        ArrayList<UserPost> userposts = select();
-        userposts.stream().filter(up -> up.getUserId() == userpost.getUser().getId() && up.getPost().getId() == userpost.getPost().getId()).findFirst().ifPresent(this::delete);
-        insert(userposts);
+        ArrayList<UserPost> userPosts = select();
+        userPosts.stream().filter(up -> up.getPost().getId().equals(userpost.getPost().getId())).collect(Collectors.toCollection(ArrayList<UserPost>::new)).forEach(userPosts::remove);
+        insert(userPosts);
     }
     //endregion
 
@@ -85,7 +79,7 @@ public class UserPostRepository {
     public ArrayList<UserPost> select() {
         ArrayList<UserPost> userPosts = new ArrayList<>();
         try {
-            File file = new File("src/file/UserPostSubReddit.txt");
+            File file = new File("src/file/UserPost.txt");
             Scanner myReader = new Scanner(file).useDelimiter(";");
 
             UserPost userPost = new UserPost();
@@ -111,7 +105,8 @@ public class UserPostRepository {
                 switch (counter) {
                     case 1 -> userPost.setUser(users.stream().filter(u -> u.getId().equals(userId)).findFirst().get());
                     case 2 -> userPost.setPost(posts.stream().filter(p -> p.getId().equals(subRedditId)).findFirst().get());
-                    case 3 -> userPost.setVote(myReader.nextBoolean());
+//                    case 3 -> userPost.setVote(myReader.nextBoolean());
+                    case 3 -> userPost.setVote(Boolean.parseBoolean(myReader.next()));
                 }
 
                 if (counter == 3) {

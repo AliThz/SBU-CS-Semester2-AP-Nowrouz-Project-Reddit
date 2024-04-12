@@ -80,7 +80,7 @@ public class UserSubRedditRepository {
     //region [ - delete(SubReddit subReddit) - ]
     public void delete(SubReddit subReddit) {
         ArrayList<UserSubReddit> userSubReddits = select();
-        userSubReddits.stream().filter(usr -> usr.getSubReddit().getId() == subReddit.getId()).collect(Collectors.toCollection(ArrayList<UserSubReddit>::new)).forEach(userSubReddits::remove);
+        userSubReddits.stream().filter(usr -> usr.getSubReddit().getId().equals(subReddit.getId())).collect(Collectors.toCollection(ArrayList<UserSubReddit>::new)).forEach(userSubReddits::remove);
         insert(userSubReddits);
     }
     //endregion

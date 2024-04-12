@@ -89,7 +89,6 @@ public class Main {
 //        Post post = new Post(sr1,u1,"Post 2", "This is Post 2");
 //        postService.create(post, u1);
 
-
         runMainPage();
     }
     //endregion
@@ -1155,6 +1154,17 @@ public class Main {
     }
     //endregion
 
+    //region [ - removePost(Post post, User user) - ]
+    public static void removePost(Post post, User user) {
+        if (post.getCreator().getId().equals(user.getId())) {
+            postService = new PostService();
+            postService.remove(post, user);
+        } else {
+            System.out.printf("%sYou cant remove this subreddit !\n%s", RED_COLOR, RESET_COLOR);
+        }
+    }
+    //endregion
+
     //region [ - displayMyPosts(User user) - ]
     public static void displayMyPosts(User user) {
         System.out.println();
@@ -1199,7 +1209,6 @@ public class Main {
                 break;
             case "1":
                 Post post = choosePost(user, posts, Main::displayOwnedPosts);
-//                displaySubRedditCompletely(user, subReddit, Main::displayOwnedSubReddits);
                 displayPostCompletely(user, post);
                 break;
             case "2":
@@ -1213,10 +1222,10 @@ public class Main {
 //                subReddit = chooseSubReddit(user, subReddits, Main::displayOwnedSubReddits);
 //                editSubReddit(subReddit, user);
 //                break;
-//            case "4":
-//                subReddit = chooseSubReddit(user, subReddits, Main::displayOwnedSubReddits);
-//                removeSubReddit(subReddit, user);
-//                break;
+            case "4":
+                post = choosePost(user, posts, Main::displayOwnedPosts);
+                removePost(post, user);
+                break;
             default:
                 System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
         }
