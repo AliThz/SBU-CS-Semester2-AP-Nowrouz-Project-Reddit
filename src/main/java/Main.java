@@ -1183,10 +1183,10 @@ public class Main {
         postService = new PostService();
 
         Scanner scanner = new Scanner(System.in);
-        System.out.printf("Title ( old :  ) :  ", post.getTitle());
+        System.out.printf("Title ( old : %s ) :  ", post.getTitle());
         post.setTitle(scanner.nextLine());
 
-        System.out.printf("Message ( old :  ) :  ", post.getMessage());
+        System.out.printf("Message ( old : %s ) :  ", post.getMessage());
         post.setMessage(scanner.nextLine());
 
         post.setCreator(user);
