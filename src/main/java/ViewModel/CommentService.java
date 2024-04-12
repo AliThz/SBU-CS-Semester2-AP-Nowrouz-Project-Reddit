@@ -54,11 +54,14 @@ public class CommentService {
     //endregion
 
     //region [ - edit(Comment comment, User user) - ]
-    public void edit(Comment comment, User user) {
+    public Comment edit(Comment comment, User user) {
         if (!user.getAccount().getHasLoggedIn())
             System.out.println("You should login first !");
-        else
+        else {
             commentRepository.update(comment);
+            return comment;
+        }
+        return null;
     }
     //endregion
 
@@ -71,10 +74,18 @@ public class CommentService {
     }
     //endregion
 
-
     //region [ - getByPost(Post post) - ]
     public ArrayList<Comment> getByPost(Post post) {
-        ArrayList<Comment> comments = commentRepository.select().stream().filter(c -> c.getRepliedPost().getId().equals(post.getId())).collect(Collectors.toCollection(ArrayList<Comment>::new));
+//        ArrayList<Comment> comments = commentRepository.select().stream().filter(c -> c.getRepliedPost().getId().equals(post.getId())).collect(Collectors.toCollection(ArrayList<Comment>::new));
+        ArrayList<Comment> allComments = commentRepository.select();
+        ArrayList<Comment> comments = new ArrayList<>();
+
+        for (var comment : allComments) {
+            if (comment.getRepliedPost().getId().equals(post.getId())) {
+                comments.add(comment);
+            }
+        }
+
         return comments;
     }
     //endregion

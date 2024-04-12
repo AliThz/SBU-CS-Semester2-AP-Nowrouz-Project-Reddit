@@ -2,16 +2,14 @@ package Model.Repository;
 
 import Model.DTO.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class CommentRepository  implements IRepository<Comment, UUID> {
+public class CommentRepository implements IRepository<Comment, UUID> {
 
     //region [ - Field - ]
     private UserRepository userRepository;
@@ -37,7 +35,7 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
     @Override
     public void insert(Comment comment) {
         try {
-            FileWriter fileWriter = new FileWriter("src/file/Comment.txt");
+            FileWriter fileWriter = new FileWriter("src/file/Comment.txt", true);
             fileWriter.write(comment.getInformation());
             fileWriter.close();
             System.out.println("Comment successfully added");
@@ -52,20 +50,16 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
     //region [ - insert(ArrayList<Comment> comments) - ]
     @Override
     public void insert(ArrayList<Comment> comments) {
-        File file = new File("src/file/Comment.txt");
-        if (file.delete()) {
-            file = new File("src/file/Comment.txt");
-        }
-        for (Comment p : comments) {
-            try {
-                FileWriter fileWriter = new FileWriter("src/file/Comment.txt");
-                fileWriter.write(p.getInformation());
-                fileWriter.close();
-                System.out.println("Comment successfully to the file.");
-            } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-            }
+        try {
+            FileWriter fileWriter = new FileWriter("src/file/Comment.txt", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+            comments.forEach(this::insert);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
     }
     //endregion
@@ -74,8 +68,9 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
     @Override
     public void update(Comment comment) {
         ArrayList<Comment> comments = select();
-        comments.stream().filter(p -> p.getId() == comment.getId()).findFirst().ifPresent(this::delete);
-        insert(comment);
+        comments.stream().filter(p -> p.getId().equals(comment.getId())).findFirst().ifPresent(comments::remove);
+        comments.add(comment);
+        insert(comments);
     }
     //endregion
 
@@ -83,7 +78,7 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
     @Override
     public void delete(Comment comment) {
         ArrayList<Comment> comments = select();
-        comments.remove(comment);
+        comments.stream().filter(p -> p.getId().equals(comment.getId())).collect(Collectors.toCollection(ArrayList<Post>::new)).forEach(comments::remove);
         insert(comments);
     }
     //endregion
@@ -119,18 +114,21 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
 
                 switch (counter) {
                     case 1 -> comment.setId(UUID.fromString(myReader.next()));
-                    case 2 -> comment.setSubReddit(subReddits.stream().filter(sr -> sr.getId().equals(subRedditId)).findFirst().get());
-                    case 3 -> comment.setCreator(users.stream().filter(u -> u.getId().equals(creatorId)).findFirst().get());
+                    case 2 ->
+                            comment.setSubReddit(subReddits.stream().filter(sr -> sr.getId().equals(subRedditId)).findFirst().get());
+                    case 3 ->
+                            comment.setCreator(users.stream().filter(u -> u.getId().equals(creatorId)).findFirst().get());
                     case 4 -> comment.setTitle(myReader.next());
                     case 5 -> comment.setMessage(myReader.next());
                     case 6 -> comment.setUpVotes(myReader.nextInt());
                     case 7 -> comment.setDownVotes(myReader.nextInt());
                     case 8 -> comment.setDate(LocalDate.parse(myReader.next()));
-                    case 9 -> comment.setRepliedPost(posts.stream().filter(p -> p.getId().equals(repliedPostId)).findFirst().get());
+                    case 9 ->
+                            comment.setRepliedPost(posts.stream().filter(p -> p.getId().equals(repliedPostId)).findFirst().get());
                 }
 
-                if (counter == 9 ) {
-                    String scan = myReader.next();
+                if (counter == 9) {
+                    myReader.nextLine();
                     comments.add(comment);
                     counter = 0;
                     comment = new Comment();

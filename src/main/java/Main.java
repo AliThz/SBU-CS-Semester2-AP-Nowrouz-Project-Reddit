@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.time.Year;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Consumer;
@@ -47,11 +48,6 @@ public class Main {
 
     //region [ - Constructor - ]
     public Main() {
-        accountService = new AccountService();
-        userService = new UserService();
-        postService = new PostService();
-        commentService = new CommentService();
-        subRedditService = new SubRedditService();
     }
     //endregion
 
@@ -146,7 +142,8 @@ public class Main {
             case "2" -> displayAllSubReddits(user);
             case "3" -> displayMyPosts(user);
             case "4" -> displayMySubReddits(user);
-            case "5" -> System.exit(0);
+            case "5" -> displayMyComments(user);
+            case "6" -> System.exit(0);
             default -> System.out.println(RED_COLOR + "Enter a correct command !" + RESET_COLOR);
         }
 
@@ -240,10 +237,10 @@ public class Main {
     //region [ - displayMainMenu(User user) - ]
     public static void displayMainMenu(User user) {
         System.out.print(BLUE_COLOR);
-        System.out.print("0. Search\n1. All Posts\n2. All SubReddits\n3. My Posts\n4. My SubReddits\n5. Exit\nEnter command :  ");
+        System.out.print("0. Search\n1. All Posts\n2. All SubReddits\n3. My Posts\n4. My SubReddits\n5. My Comments\n6. Exit\nEnter command :  ");
         System.out.print(RESET_COLOR);
     }
-//endregion
+    //endregion
 
     //endregion
 
@@ -1068,7 +1065,7 @@ public class Main {
                 case "2" -> postService.vote(post, user, true);
                 case "3" -> postService.vote(post, user, false);
                 case "4" -> editPost(user, post);
-                case "5" -> removePost(user, post);
+                case "5" -> removePost(post, user);
                 default -> System.out.println(RED_COLOR + "Enter a correct command !" + RESET_COLOR);
             }
         else
@@ -1083,12 +1080,6 @@ public class Main {
 
     //region [ - editPost(User user, Post post) - ]
     public static void editPost(User user, Post post) {
-
-    }
-//endregion
-
-    //region [ - removePost(User user, Post post) - ]
-    public static void removePost(User user, Post post) {
 
     }
 //endregion
@@ -1191,8 +1182,8 @@ public class Main {
 
         post.setCreator(user);
 
-        Post editedSubReddit = postService.edit(post, user);
-        if (editedSubReddit == null) {
+        Post editedPost = postService.edit(post, user);
+        if (editedPost == null) {
             System.out.printf("%sThe post can not be edited !%s\n", RED_COLOR, RESET_COLOR);
             System.out.printf("\n%s0. Back\n1. Edit Post\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
             String command = scanner.next();
@@ -1311,7 +1302,7 @@ public class Main {
                 displayPostBriefly(p);
             }
 
-        System.out.printf("\n%s0. Back\n1. Open Comment\n2. Create Comment\n3. Edit Comment\n4. Remove Comment\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+        System.out.printf("\n%s0. Back\n1. Open Comment\n2. Edit Comment\n3. Remove Comment\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String command = scanner.next();
         System.out.println();
@@ -1324,19 +1315,10 @@ public class Main {
                 displayPostCompletely(user, post);
                 break;
             case "2":
-                System.out.print("Dou wanna create a comment ? (y/n) ");
-                command = scanner.next();
-                if (Objects.equals(command, "y")) {
-                    post = choosePost(user, posts, Main::displayCommentedPosts);
-                    createComment(user, post);
-                }
-                else displayCommentedPosts(user);
-                break;
-            case "3":
                 post = choosePost(user, posts, Main::displayCommentedPosts);
                 editPost(post, user);
                 break;
-            case "4":
+            case "3":
                 post = choosePost(user, posts, Main::displayCommentedPosts);
                 removePost(post, user);
                 break;
@@ -1367,9 +1349,52 @@ public class Main {
         String title = scanner.nextLine();
         System.out.print("Message :  ");
         String message = scanner.nextLine();
-//        Post post = choosePost(user, postService.getByUserCommented(user), Main::displayCommentedPosts);
         Comment comment = new Comment(post.getSubReddit(), user, title, message, post);
         commentService.create(comment, user);
+    }
+    //endregion
+
+    //region [ - editComment(Comment comment,User user) - ]
+    public static void editComment(Comment comment, User user) {
+        commentService = new CommentService();
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.printf("Title ( old : %s ) :  ", comment.getTitle());
+        comment.setTitle(scanner.nextLine());
+
+        System.out.printf("Message ( old : %s ) :  ", comment.getMessage());
+        comment.setMessage(scanner.nextLine());
+
+        comment.setCreator(user);
+
+        Comment editedComment = commentService.edit(comment, user);
+        if (editedComment == null) {
+            System.out.printf("%sThe comment can not be edited !%s\n", RED_COLOR, RESET_COLOR);
+            System.out.printf("\n%s0. Back\n1. Edit Post\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+            String command = scanner.next();
+            System.out.println();
+            switch (command) {
+                case "0" -> displayOwnedPosts(user);
+                case "1" -> editPost(comment, user);
+                default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+            }
+            System.out.println();
+            displayOwnedPosts(user);
+        } else {
+            System.out.printf("%sComment edited successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
+            displayOwnedPosts(user);
+        }
+    }
+    //endregion
+
+    //region [ - removeComment(Comment comment, User user) - ]
+    public static void removeComment(Comment comment, User user) {
+        if (comment.getCreator().getId().equals(user.getId())) {
+            commentService = new CommentService();
+            commentService.remove(comment, user);
+        } else {
+            System.out.printf("%sYou cant remove this comment !\n%s", RED_COLOR, RESET_COLOR);
+        }
     }
     //endregion
 
@@ -1387,7 +1412,7 @@ public class Main {
     }
     //endregion
 
-    //region [ - choosePost(User user, ArrayList<Comment> comments, Consumer<User> goBack) - ]
+    //region [ - chooseComment(User user, ArrayList<Comment> comments, Consumer<User> goBack) - ]
     public static Comment chooseComment(User user, ArrayList<Comment> comments, Consumer<User> goBack) {
         System.out.printf("\n%sEnter the number of comment you wanna choose or 0 to go back :  ", RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
@@ -1416,6 +1441,51 @@ public class Main {
         return null;
     }
 
+    //endregion
+
+    //region [ - displayMyComments(User user) - ]
+    public static void displayMyComments(User user) {
+        System.out.println();
+        displayReddit();
+        System.out.printf("    %sMy Comments%s\n", GREEN_COLOR, RESET_COLOR);
+
+        commentService = new CommentService();
+        ArrayList<Comment> comments = commentService.getByUser(user);
+
+        int counter = 0;
+        for (var c : comments) {
+            counter++;
+            System.out.printf("%s%d.", BLUE_COLOR, counter);
+            displayCommentCompletely(c);
+        }
+        System.out.println();
+
+        System.out.printf("%s0. Back\n1. Open\n2. Edit\n3. Remove%s\nEnter your choice :  ", WHITE_COLOR, RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+        String command = scanner.nextLine();
+
+        switch (command) {
+            case "0":
+                runMainPage(user);
+                break;
+            case "1":
+                Comment comment = chooseComment(user, comments, Main::displayMyComments);
+                displayCommentCompletely(comment);
+                break;
+            case "2":
+                comment = chooseComment(user, comments, Main::displayMyComments);
+                editComment(comment, user);
+                break;
+            case "3":
+                comment = chooseComment(user, comments, Main::displayMyComments);
+                removeComment(comment, user);
+                break;
+            default:
+                System.out.printf("\n%sEnter a correct command !%s\n\n", RED_COLOR, RESET_COLOR);
+                displayMyComments(user);
+        }
+        displayMyComments(user);
+    }
     //endregion
 
     //endregion
