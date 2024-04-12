@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -145,7 +146,7 @@ public class Main {
             case "0" -> search(user);
             case "1" -> displayAllPosts(user);
             case "2" -> displayAllSubReddits(user);
-//            case "3" -> displayMyPosts(user);
+            case "3" -> displayMyPosts(user);
             case "4" -> displayMySubReddits(user);
             case "5" -> System.exit(0);
             default -> System.out.println(RED_COLOR + "Enter a correct command !" + RESET_COLOR);
@@ -701,14 +702,16 @@ public class Main {
 
     //region [ - createSubReddit(User user) - ]
     public static void createSubReddit(User user) {
+        System.out.println();
+        displayReddit();
+        System.out.printf("    %sCreating SubReddit%s", GREEN_COLOR, RESET_COLOR);
+
         subRedditService = new SubRedditService();
         SubReddit subReddit = new SubReddit();
 
         Scanner scanner = new Scanner(System.in);
         System.out.print("Title :  ");
-        subReddit.setTitle(scanner.next());
-
-        scanner.nextLine();
+        subReddit.setTitle(scanner.nextLine());
 
         System.out.print("Description :  ");
         subReddit.setDescription(scanner.nextLine());
@@ -720,12 +723,12 @@ public class Main {
             String command = scanner.next();
             System.out.println();
             switch (command) {
-                case "0" -> displayAllSubReddits(user);
+                case "0" -> displayMySubReddits(user);
                 case "1" -> createSubReddit(user);
                 default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
             }
             System.out.println();
-            runMainPage();
+            runMainPage(user);
         } else {
             System.out.printf("%sSubReddit created successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
             displayOwnedSubReddits(user);
@@ -1072,6 +1075,155 @@ public class Main {
         System.out.printf("%sTitle : %s, SubReddit : %s, Karma : %d, Date : %s, %s%s\n%s", CYAN_COLOR, post.getTitle(), post.getSubReddit().getTitle(), post.getKarma(), post.getDate(), WHITE_COLOR, post.getMessage().substring(0, post.getMessage().length() / 2) + "...", CYAN_COLOR);
     }
 //endregion
+
+    //region [ - choosePost(User user, ArrayList<SubReddit> subReddits, Consumer<User> goBack) - ]
+    public static Post choosePost(User user, ArrayList<Post> posts, Consumer<User> goBack) {
+        System.out.printf("\n%sEnter the number of post you wanna choose or 0 to go back :  ", RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+
+        String command = scanner.nextLine();
+        System.out.println();
+        if (command.equals("0")) {
+            goBack.accept(user);
+        } else {
+            Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+            if (pattern.matcher(command).matches()) {
+                int intCommand = Integer.parseInt(command);
+                if (intCommand <= posts.size()) {
+                    return posts.get(intCommand - 1);
+                } else {
+                    System.out.printf("%sEnter a correct command !%s\n", RED_COLOR, RESET_COLOR);
+                    System.out.println();
+                    goBack.accept(user);
+                }
+            } else {
+                System.out.printf("%sEnter a correct command !%s\n", RED_COLOR, RESET_COLOR);
+                System.out.println();
+                goBack.accept(user);
+            }
+        }
+        return null;
+    }
+
+    //endregion
+
+    //region [ - createPost(User user - ]
+    public static void createPost(User user) {
+        System.out.println();
+        displayReddit();
+        System.out.printf("    %sCreating Post\n%s", GREEN_COLOR, RESET_COLOR);
+
+        postService = new PostService();
+        subRedditService = new SubRedditService();
+        Post post = new Post();
+
+        ArrayList<SubReddit> subReddits = Stream.concat(subRedditService.getCreatedSubReddit(user).stream(), subRedditService.getJoinedSubReddit(user).stream()).collect(Collectors.toCollection(ArrayList<SubReddit>::new));
+        int counter = 0;
+        for (SubReddit sr : subReddits) {
+            counter++;
+            System.out.printf("%s%d.", BLUE_COLOR, counter);
+            displaySubRedditBriefly(sr);
+        }
+        post.setSubReddit(chooseSubReddit(user, subReddits, Main::createPost));
+
+        post.setCreator(user);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Title :  ");
+        post.setTitle(scanner.nextLine());
+
+        System.out.print("Message :  ");
+        post.setMessage(scanner.nextLine());
+
+        Post createdPost = postService.create(post, user);
+        if (createdPost == null) {
+            System.out.printf("%sThe post can not be created !%s\n", RED_COLOR, RESET_COLOR);
+            System.out.printf("\n%s0. Back\n1. Create Post\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+            String command = scanner.next();
+            System.out.println();
+            switch (command) {
+                case "0" -> displayMyPosts(user);
+                case "1" -> createPost(user);
+                default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+            }
+            System.out.println();
+            runMainPage(user);
+        } else {
+            System.out.printf("%sPost created successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
+            displayOwnedPosts(user);
+        }
+    }
+    //endregion
+
+    //region [ - displayMyPosts(User user) - ]
+    public static void displayMyPosts(User user) {
+        System.out.println();
+        displayReddit();
+        System.out.printf("    %sMy Posts%s\n", GREEN_COLOR, RESET_COLOR);
+        System.out.printf("%s0. Back\n1. My Own Posts\n\nEnter your choice :  %s", BLUE_COLOR, RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+        String command = scanner.next();
+        System.out.println();
+        switch (command) {
+            case "0" -> runMainPage(user);
+            case "1" -> displayOwnedPosts(user);
+            default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+        }
+        System.out.println();
+        runMainPage(user);
+    }
+    //endregion
+
+    //region [ - displayOwnedPosts(User user) - ]
+    public static void displayOwnedPosts(User user) {
+        displayReddit();
+        System.out.printf("    %sMy Own Posts%s\n", GREEN_COLOR, RESET_COLOR);
+
+        postService = new PostService();
+
+        ArrayList<Post> posts = postService.getByCreator(user);
+        int counter = 0;
+        for (Post p : posts) {
+            counter++;
+            System.out.printf("%s%d.", BLUE_COLOR, counter);
+            displayPostBriefly(p);
+        }
+
+        System.out.printf("\n%s0. Back\n1. Open\n2. Create\n3. Edit\n4. Remove\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+        Scanner scanner = new Scanner(System.in);
+        String command = scanner.next();
+        System.out.println();
+        switch (command) {
+            case "0":
+                displayMyPosts(user);
+                break;
+            case "1":
+                Post post = choosePost(user, posts, Main::displayOwnedPosts);
+//                displaySubRedditCompletely(user, subReddit, Main::displayOwnedSubReddits);
+                displayPostCompletely(user, post);
+                break;
+            case "2":
+                System.out.print("Dou wanna create a post ? (y/n) ");
+                command = scanner.next();
+                if (Objects.equals(command, "y"))
+                    createPost(user);
+                else displayOwnedPosts(user);
+                break;
+//            case "3":
+//                subReddit = chooseSubReddit(user, subReddits, Main::displayOwnedSubReddits);
+//                editSubReddit(subReddit, user);
+//                break;
+//            case "4":
+//                subReddit = chooseSubReddit(user, subReddits, Main::displayOwnedSubReddits);
+//                removeSubReddit(subReddit, user);
+//                break;
+            default:
+                System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+        }
+        System.out.println();
+        displayOwnedPosts(user);
+    }
+    //endregion
 
     //endregion
 

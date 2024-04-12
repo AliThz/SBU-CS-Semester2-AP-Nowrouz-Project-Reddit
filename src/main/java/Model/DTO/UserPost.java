@@ -48,7 +48,7 @@ public class UserPost {
 
     private String information;
     public String getInformation() {
-        return String.format("%s;%s;%s;\n",userId, postId, vote);
+        return String.format("%s;%s;%s;\n",user.getId(), post.getId(), vote);
     }
 
     //endregion

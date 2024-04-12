@@ -35,12 +35,16 @@ public class PostService {
 
     //region [ - Methods - ]
 
-    //region [ - create(Post post, User user)) - ]
-    public void create(Post post, User user) {
-        if (user.getAccount().getHasLoggedIn())
+    //region [ - create(Post post, User user) - ]
+    public Post create(Post post, User user) {
+        if (!user.getAccount().getHasLoggedIn())
             System.out.println("You should login first !");
-        else
+        else {
             postRepository.insert(post);
+            userPostRepository.insert(new UserPost(user, post, null));
+            return post;
+        }
+        return null;
     }
     //endregion
 
