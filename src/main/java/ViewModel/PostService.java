@@ -149,6 +149,7 @@ public class PostService {
     //region [ - ArrayList<Post> getTimeline(User user) - ]
     public ArrayList<Post> getTimeline(User user) {
         ArrayList<Post> posts = getBySubReddits(user);
+        posts.forEach(p -> p.setComments(commentService.getByPost(p)));
         if (posts != null) {
             posts.sort(Comparator.comparing(Post::getDate));
             Collections.reverse(posts);

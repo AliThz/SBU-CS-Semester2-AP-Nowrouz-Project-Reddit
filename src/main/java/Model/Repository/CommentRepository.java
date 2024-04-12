@@ -40,7 +40,7 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
             FileWriter fileWriter = new FileWriter("src/file/Comment.txt");
             fileWriter.write(comment.getInformation());
             fileWriter.close();
-            System.out.println("Comment successfully to the file.");
+            System.out.println("Comment successfully added");
 
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -119,8 +119,8 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
 
                 switch (counter) {
                     case 1 -> comment.setId(UUID.fromString(myReader.next()));
-                    case 2 -> comment.setCreator(users.stream().filter(u -> u.getId().equals(creatorId)).findFirst().get());
-                    case 3 -> comment.setSubReddit(subReddits.stream().filter(sr -> sr.getId().equals(creatorId)).findFirst().get());
+                    case 2 -> comment.setSubReddit(subReddits.stream().filter(sr -> sr.getId().equals(subRedditId)).findFirst().get());
+                    case 3 -> comment.setCreator(users.stream().filter(u -> u.getId().equals(creatorId)).findFirst().get());
                     case 4 -> comment.setTitle(myReader.next());
                     case 5 -> comment.setMessage(myReader.next());
                     case 6 -> comment.setUpVotes(myReader.nextInt());
@@ -130,6 +130,7 @@ public class CommentRepository  implements IRepository<Comment, UUID> {
                 }
 
                 if (counter == 9 ) {
+                    String scan = myReader.next();
                     comments.add(comment);
                     counter = 0;
                     comment = new Comment();

@@ -943,6 +943,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         String command = scanner.nextLine();
+        System.out.println();
         if (command.equals("0")) {
             if (user != null) runMainPage(user);
             else runMainPage();
@@ -957,17 +958,20 @@ public class Main {
                     String postCommand;
 
                     if (user != null) {
-                        System.out.printf("%s0. Back\n1. Comment\n2. Up Vote\n3. Down Vote\n%s", WHITE_COLOR, RESET_COLOR);
+                        System.out.printf("\n%s0. Back\n1. Comment\n2. Up Vote\n3. Down Vote\n\n%sEnter your choice : ", WHITE_COLOR, RESET_COLOR);
                         postCommand = scanner.nextLine();
                         switch (postCommand) {
                             case "0" -> displayAllPosts(user);
-                            case "1" -> createComment(user);
+                            case "1" -> createComment(user, post);
                             case "2" -> postService.vote(post, user, true);
                             case "3" -> postService.vote(post, user, false);
                         }
                     } else {
                         System.out.printf("%s\n0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
                         postCommand = scanner.nextLine();
+                        if (Objects.equals(postCommand, "0"))
+                            runMainPage();
+                        else System.out.printf("%sEnter a correct command%s", RED_COLOR, RESET_COLOR);
                         System.out.println();
                         displayAllPosts(user);
                     }
@@ -1055,7 +1059,7 @@ public class Main {
             switch (command) {
                 case "0" -> {
                 }
-                case "1" -> createComment(user);
+                case "1" -> createComment(user, post);
                 case "2" -> postService.vote(post, user, true);
                 case "3" -> postService.vote(post, user, false);
                 case "4" -> editPost(user, post);
@@ -1317,8 +1321,10 @@ public class Main {
             case "2":
                 System.out.print("Dou wanna create a comment ? (y/n) ");
                 command = scanner.next();
-                if (Objects.equals(command, "y"))
-                    createComment(user);
+                if (Objects.equals(command, "y")) {
+                    post = choosePost(user, posts, Main::displayCommentedPosts);
+                    createComment(user, post);
+                }
                 else displayCommentedPosts(user);
                 break;
             case "3":
@@ -1348,7 +1354,7 @@ public class Main {
     //region { --- Comment --- }
 
     //region [ - createComment(User user) - ]
-    public static void createComment(User user) {
+    public static void createComment(User user, Post post) {
         postService = new PostService();
         commentService = new CommentService();
         Scanner scanner = new Scanner(System.in);
@@ -1356,7 +1362,7 @@ public class Main {
         String title = scanner.nextLine();
         System.out.print("Message :  ");
         String message = scanner.nextLine();
-        Post post = choosePost(user, postService.getByUserCommented(user), Main::displayCommentedPosts);
+//        Post post = choosePost(user, postService.getByUserCommented(user), Main::displayCommentedPosts);
         Comment comment = new Comment(post.getSubReddit(), user, title, message, post);
         commentService.create(comment, user);
     }
@@ -1364,7 +1370,7 @@ public class Main {
 
     //region [ - displayCommentBriefly(Comment comment) - ]
     public static void displayCommentBriefly(Comment comment) {
-        System.out.printf("%s%s\n%s%s", RESET_COLOR, RESET_COLOR, comment.getCreator().getUsername(), comment.getMessage());
+        System.out.printf("\n%sComment by %s\nMessage : %s\n", RESET_COLOR, comment.getCreator().getUsername(), comment.getMessage());
     }
     //endregion
 
@@ -1372,7 +1378,7 @@ public class Main {
     public static void displayCommentCompletely(Comment comment) {
         postService = new PostService();
         Post post = postService.getById(comment.getRepliedPost().getId());
-        System.out.printf("Post ( by %s ) : \" %s \" : %s\n%s%s\n%s%s", RESET_COLOR, RESET_COLOR, post.getCreator().getUsername(), post.getTitle(), post.getMessage(), comment.getCreator().getUsername(), comment.getMessage());
+        System.out.printf("%sPost ( by %s ) : \" %s \" : %s\nComment by %s\nMessage : %s\n", RESET_COLOR, post.getCreator().getUsername(), post.getTitle(), post.getMessage(), comment.getCreator().getUsername(), comment.getMessage());
     }
     //endregion
 

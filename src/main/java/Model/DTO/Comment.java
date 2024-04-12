@@ -24,7 +24,7 @@ public class Comment extends Post {
 
     @Override
     public String getInformation() {
-        return super.getInformation() + String.format("%s;", repliedPost.getId());
+        return String.format("%s;%s;%s;%s;%s;%d;%d;%s;%s;\n",getId(), getSubReddit().getId(), getCreator().getId(), getTitle(), getMessage(), getUpVotes(), getDownVotes(), getDate(), repliedPost.getId());
     }
 
     //endregion
