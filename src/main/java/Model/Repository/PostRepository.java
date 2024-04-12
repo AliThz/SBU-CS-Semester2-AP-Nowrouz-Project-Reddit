@@ -68,8 +68,9 @@ public class PostRepository implements IRepository<Post, UUID> {
     @Override
     public void update(Post post) {
         ArrayList<Post> posts = select();
-        posts.stream().filter(p -> p.getId() == post.getId()).findFirst().ifPresent(this::delete);
-        insert(post);
+        posts.stream().filter(p -> p.getId().equals(post.getId())).findFirst().ifPresent(posts::remove);
+        posts.add(post);
+        insert(posts);
     }
     //endregion
 

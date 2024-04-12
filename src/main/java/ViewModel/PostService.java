@@ -65,11 +65,14 @@ public class PostService {
     //endregion
 
     //region [ - edit(Post post, User user) - ]
-    public void edit(Post post, User user) {
+    public Post edit(Post post, User user) {
         if (!user.getAccount().getHasLoggedIn())
             System.out.println("You should login first !");
-        else
+        else {
             postRepository.update(post);
+            return post;
+        }
+        return null;
     }
     //endregion
 

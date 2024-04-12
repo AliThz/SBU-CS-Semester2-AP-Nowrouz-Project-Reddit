@@ -760,7 +760,7 @@ public class Main {
             System.out.println();
             runMainPage();
         } else {
-            System.out.printf("%sSubReddit created successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
+            System.out.printf("%sSubReddit edited successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
             displayOwnedSubReddits(user);
         }
     }
@@ -1154,6 +1154,39 @@ public class Main {
     }
     //endregion
 
+    //region [ - editPost(Post post,User user) - ]
+    public static void editPost(Post post,User user) {
+        postService = new PostService();
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.printf("Title ( old :  ) :  ", post.getTitle());
+        post.setTitle(scanner.nextLine());
+
+        System.out.printf("Message ( old :  ) :  ", post.getMessage());
+        post.setMessage(scanner.nextLine());
+
+        post.setCreator(user);
+
+        Post editedSubReddit = postService.edit(post, user);
+        if (editedSubReddit == null) {
+            System.out.printf("%sThe post can not be edited !%s\n", RED_COLOR, RESET_COLOR);
+            System.out.printf("\n%s0. Back\n1. Edit Post\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
+            String command = scanner.next();
+            System.out.println();
+            switch (command) {
+                case "0" -> displayOwnedPosts(user);
+                case "1" -> editPost(post, user);
+                default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
+            }
+            System.out.println();
+            runMainPage();
+        } else {
+            System.out.printf("%sPost edited successfully !%s\n\n", GREEN_COLOR, RESET_COLOR);
+            displayOwnedPosts(user);
+        }
+    }
+    //endregion
+
     //region [ - removePost(Post post, User user) - ]
     public static void removePost(Post post, User user) {
         if (post.getCreator().getId().equals(user.getId())) {
@@ -1218,10 +1251,10 @@ public class Main {
                     createPost(user);
                 else displayOwnedPosts(user);
                 break;
-//            case "3":
-//                subReddit = chooseSubReddit(user, subReddits, Main::displayOwnedSubReddits);
-//                editSubReddit(subReddit, user);
-//                break;
+            case "3":
+                post = choosePost(user, posts, Main::displayOwnedPosts);
+                editPost(post, user);
+                break;
             case "4":
                 post = choosePost(user, posts, Main::displayOwnedPosts);
                 removePost(post, user);
