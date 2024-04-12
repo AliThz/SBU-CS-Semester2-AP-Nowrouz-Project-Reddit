@@ -74,8 +74,7 @@ public class CommentService {
 
     //region [ - getByPost(Post post) - ]
     public ArrayList<Comment> getByPost(Post post) {
-//        ArrayList<Comment> comments = commentRepository.select().stream().filter(c -> c.getRepliedPost().getId().equals(post.getId())).collect(Collectors.toCollection(ArrayList<Comment>::new));
-        ArrayList<Comment> comments = commentRepository.select();
+        ArrayList<Comment> comments = commentRepository.select().stream().filter(c -> c.getRepliedPost().getId().equals(post.getId())).collect(Collectors.toCollection(ArrayList<Comment>::new));
         return comments;
     }
     //endregion

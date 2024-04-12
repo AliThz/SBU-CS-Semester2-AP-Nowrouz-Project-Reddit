@@ -107,8 +107,20 @@ public class PostService {
 
     //region [ - getByUserCommented(User user) - ]
     public ArrayList<Post> getByUserCommented(User user) {
-        ArrayList<Post> posts = postRepository.select().stream().filter(p -> p.getComments().stream().anyMatch(c -> c.getCreator().getId().equals(user.getId()))).collect(Collectors.toCollection(ArrayList::new));
-        posts.forEach(p -> p.setComments(commentService.getByPost(p)));
+//        ArrayList<Post> posts = postRepository.select().stream().filter(p -> commentService.getByPost(p).stream().anyMatch(c -> c.getCreator().getId().equals(user.getId()))).collect(Collectors.toCollection(ArrayList<Post>::new));
+//        posts.forEach(p -> p.setComments(commentService.getByPost(p)));
+        ArrayList<Post> allPosts = get();
+        ArrayList<Post> posts = new ArrayList<>();
+
+        for (var post : allPosts) {
+            for (var comment : post.getComments()) {
+                if (comment.getCreator().getId().equals(user.getId())) {
+                    posts.add(post);
+                    break;
+                }
+            }
+        }
+
         return posts;
     }
     //endregion
