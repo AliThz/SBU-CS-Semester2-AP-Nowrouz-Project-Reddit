@@ -953,6 +953,7 @@ public class Main {
                 int intCommand = Integer.parseInt(command);
                 if (intCommand <= posts.size()) {
                     Post post = posts.get(intCommand - 1);
+                    post.setComments(commentService.getByPost(post));
                     displayPostCompletely(post);
 
                     String postCommand;
@@ -970,7 +971,8 @@ public class Main {
                         System.out.printf("%s\n0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
                         postCommand = scanner.nextLine();
                         if (Objects.equals(postCommand, "0"))
-                            runMainPage();
+                            if (user != null) runMainPage(user);
+                            else runMainPage();
                         else System.out.printf("%sEnter a correct command%s", RED_COLOR, RESET_COLOR);
                         System.out.println();
                         displayAllPosts(user);
@@ -996,7 +998,10 @@ public class Main {
     public static void displayFromTimeline(int index) {
         System.out.println();
         postService = new PostService();
-        displayPostCompletely(postService.getTimeline().get(index));
+        commentService = new CommentService();
+        Post post = postService.getTimeline().get(index);
+        post.setComments(commentService.getByPost(post));
+        displayPostCompletely(post);
         System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
         Scanner scanner = new Scanner(System.in);
         String postCommand = scanner.next();
@@ -1035,7 +1040,7 @@ public class Main {
         displayReddit();
         System.out.printf("    %sPost%s\n", GREEN_COLOR, RESET_COLOR);
         System.out.printf("%sSubReddit : %s\n%sTitle : %s\n%s%s\n%sUpVotes : %s , Karma : %s , DownVotes : %s\n", PURPLE_COLOR, post.getSubReddit().getTitle(), BLUE_COLOR, post.getTitle(), CYAN_COLOR, post.getMessage(), YELLOW_COLOR, post.getUpVotes(), post.getKarma(), post.getDownVotes());
-        post.getComments().forEach(c -> System.out.printf("%s%s\n%s%s", RESET_COLOR, RESET_COLOR, c.getCreator().getUsername(), c.getMessage()));
+        post.getComments().forEach(Main::displayCommentBriefly);
     }
 //endregion
 
@@ -1378,7 +1383,7 @@ public class Main {
     public static void displayCommentCompletely(Comment comment) {
         postService = new PostService();
         Post post = postService.getById(comment.getRepliedPost().getId());
-        System.out.printf("%sPost ( by %s ) : \" %s \" : %s\nComment by %s\nMessage : %s\n", RESET_COLOR, post.getCreator().getUsername(), post.getTitle(), post.getMessage(), comment.getCreator().getUsername(), comment.getMessage());
+        System.out.printf("\n%sPost ( by %s ) : \" %s \" : %s\nComment by %s\nMessage : %s\n", RESET_COLOR, post.getCreator().getUsername(), post.getTitle(), post.getMessage(), comment.getCreator().getUsername(), comment.getMessage());
     }
     //endregion
 
