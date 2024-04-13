@@ -174,7 +174,12 @@ public class PostService {
 
     //region [ - vote(Post post, User user, boolean vote) - ]
     public void vote(Post post, User user, boolean vote) {
-        UserPost userPost = userPostRepository.select().stream().filter(up -> up.getPost().getId().equals(post.getId()) && up.getUser().getId().equals(user.getId())).findFirst().get();
+        UserPost userPost = userPostRepository.select().stream().filter(up -> up.getPost().getId().equals(post.getId()) && up.getUser().getId().equals(user.getId())).findFirst().orElse(null);
+        if (userPost == null) {
+            userPost = new UserPost(user, post, null);
+            userPostRepository.insert(userPost);
+        }
+
         if (userPost.getVote() == null) {
             if (vote) {
                 post.setUpVotes(post.getUpVotes() + 1);
@@ -184,7 +189,7 @@ public class PostService {
                 userPost.setVote(false);
             }
             edit(post, user);
-            userPostRepository.insert(new UserPost(user, post, vote));
+            userPostRepository.update(new UserPost(user, post, vote));
         } else {
             if (userPost.getVote() == vote) {
                 if (vote) {
@@ -194,6 +199,8 @@ public class PostService {
                 }
                 userPost.setVote(null);
                 edit(post, user);
+                userPost.setUser(user);
+                userPost.setPost(post);
                 userPostRepository.update(userPost);
             } else {
                 if (vote) {

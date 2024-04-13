@@ -4,6 +4,7 @@ import ViewModel.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import javax.crypto.spec.PSource;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -1014,8 +1015,8 @@ public class Main {
                 case "0" -> {
                 }
                 case "1" -> createComment(user, post);
-                case "2" -> postService.vote(post, user, true);
-                case "3" -> postService.vote(post, user, false);
+                case "2" -> votePost(user, post,true);
+                case "3" -> votePost(user, post,false);
                 case "4" -> editPost(user, post);
                 case "5" -> removePost(post, user);
                 default -> System.out.println(RED_COLOR + "Enter a correct command !" + RESET_COLOR);
@@ -1027,6 +1028,13 @@ public class Main {
                 default -> System.out.println(RED_COLOR + "Enter a correct command !" + RESET_COLOR);
             }
 
+    }
+    //endregion
+
+    //region [ - votePost(User user, Post post, boolean vote) - ]
+    public static void votePost(User user, Post post, boolean vote) {
+        postService.vote(post, user, vote);
+        displayPostCompletely(user, post);
     }
     //endregion
 
