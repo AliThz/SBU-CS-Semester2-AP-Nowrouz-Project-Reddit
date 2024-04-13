@@ -951,30 +951,7 @@ public class Main {
                 if (intCommand <= posts.size()) {
                     Post post = posts.get(intCommand - 1);
                     post.setComments(commentService.getByPost(post));
-                    displayPostCompletely(post);
-
-                    String postCommand;
-
-                    if (user != null) {
-                        System.out.printf("\n%s0. Back\n1. Comment\n2. Up Vote\n3. Down Vote\n\n%sEnter your choice : ", WHITE_COLOR, RESET_COLOR);
-                        postCommand = scanner.nextLine();
-                        switch (postCommand) {
-                            case "0" -> displayAllPosts(user);
-                            case "1" -> createComment(user, post);
-                            case "2" -> postService.vote(post, user, true);
-                            case "3" -> postService.vote(post, user, false);
-                        }
-                    } else {
-                        System.out.printf("%s\n0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
-                        postCommand = scanner.nextLine();
-                        if (Objects.equals(postCommand, "0"))
-                            if (user != null) runMainPage(user);
-                            else runMainPage();
-                        else System.out.printf("%sEnter a correct command%s", RED_COLOR, RESET_COLOR);
-                        System.out.println();
-                        displayAllPosts(user);
-                    }
-
+                    displayPostCompletely(user, post);
                 } else {
                     System.out.printf("%sEnter a correct command ! !\n%s", GREEN_COLOR, RESET_COLOR);
                     System.out.println();
@@ -998,48 +975,23 @@ public class Main {
         commentService = new CommentService();
         Post post = postService.getTimeline().get(index);
         post.setComments(commentService.getByPost(post));
-        displayPostCompletely(post);
-        System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
-        Scanner scanner = new Scanner(System.in);
-        String postCommand = scanner.next();
-        System.out.println();
-        switch (postCommand) {
-            case "0" -> runMainPage();
-            default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
-        }
+        displayPostCompletely(null, post);
         System.out.println();
         runMainPage();
     }
-//endregion
+   //endregion
 
     //region [ - displayFromTimeline(User user, int index) - ]
     public static void displayFromTimeline(User user, int index) {
         System.out.println();
         postService = new PostService();
-        displayPostCompletely(postService.getTimeline(user).get(index));
-        System.out.printf("\n%s0. Back\nEnter your choice :  %s", WHITE_COLOR, RESET_COLOR);
-        Scanner scanner = new Scanner(System.in);
-        String postCommand = scanner.next();
+        displayPostCompletely(user, postService.getTimeline(user).get(index));
         System.out.println();
-        switch (postCommand) {
-            case "0" -> runMainPage(user);
-            default -> System.out.printf("%sEnter a correct command !%s", RED_COLOR, RESET_COLOR);
-        }
-        System.out.println();
-        runMainPage();
+        runMainPage(user);
     }
-//endregion
-
     //endregion
 
-    //region [ - displayPostCompletely(Post post) - ]
-    public static void displayPostCompletely(Post post) {
-        displayReddit();
-        System.out.printf("    %sPost%s\n", GREEN_COLOR, RESET_COLOR);
-        System.out.printf("%sSubReddit : %s\n%sTitle : %s\n%s%s\n%sUpVotes : %s , Karma : %s , DownVotes : %s\n", PURPLE_COLOR, post.getSubReddit().getTitle(), BLUE_COLOR, post.getTitle(), CYAN_COLOR, post.getMessage(), YELLOW_COLOR, post.getUpVotes(), post.getKarma(), post.getDownVotes());
-        post.getComments().forEach(Main::displayCommentBriefly);
-    }
-//endregion
+    //endregion
 
     // region [ - displayPostCompletely(User user, Post post) - ]
     public static void displayPostCompletely(User user, Post post) {
@@ -1049,8 +1001,8 @@ public class Main {
         post.getComments().forEach(Main::displayCommentBriefly);
 
         if (user != null)
-            System.out.printf("%s0. Back\n1. Comment\n2. Up Vote\n3. Down Vote\n4. Edit\n5. Remove\n\n%sEnter your desirable command :  ", WHITE_COLOR, RESET_COLOR);
-        else System.out.printf("%s0. Back\n\n%sEnter your desirable command :  ", WHITE_COLOR, RESET_COLOR);
+            System.out.printf("\n%s0. Back\n1. Comment\n2. Up Vote\n3. Down Vote\n4. Edit\n5. Remove\n\n%sEnter your desirable command :  ", WHITE_COLOR, RESET_COLOR);
+        else System.out.printf("\n%s0. Back\n\n%sEnter your desirable command :  ", WHITE_COLOR, RESET_COLOR);
 
         postService = new PostService();
         Scanner scanner = new Scanner(System.in);
