@@ -2,10 +2,7 @@ package Model.Repository;
 
 import Model.DTO.Account;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.UUID;
@@ -42,20 +39,16 @@ public class AccountRepository implements IRepository<Account, UUID> {
     //region [ - insert(ArrayList<Account> accounts) - ]
     @Override
     public void insert(ArrayList<Account> accounts) {
-        File file = new File("src/file/Account.txt");
-        if (file.delete()) {
-            file = new File("src/file/Account.txt");
-        }
-        for (Account u : accounts) {
-            try {
-                FileWriter fileWriter = new FileWriter("src/file/Account.txt", true);
-                fileWriter.write(u.toString());
-                fileWriter.close();
-                System.out.println("Account successfully to the file.");
-            } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-            }
+        try {
+            FileWriter fileWriter = new FileWriter("src/file/Account.txt", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+            accounts.forEach(this::insert);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
     }
     //endregion
@@ -64,9 +57,10 @@ public class AccountRepository implements IRepository<Account, UUID> {
     @Override
     public void update(Account account) {
         ArrayList<Account> accounts = select();
-        for (Account u : accounts) {
-            if (u.getId() == account.getId()) {
-                u = account;
+        for (Account a : accounts) {
+            if (a.getId().equals(account.getId())) {
+                accounts.remove(a);
+                accounts.add(account);
                 break;
             }
         }

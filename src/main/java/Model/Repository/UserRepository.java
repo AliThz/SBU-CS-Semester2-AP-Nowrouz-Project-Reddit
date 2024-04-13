@@ -3,10 +3,7 @@ package Model.Repository;
 import Model.DTO.Account;
 import Model.DTO.User;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -40,7 +37,6 @@ public class UserRepository implements IRepository<User, UUID> {
             fileWriter.write(user.getInformation());
             accountRepository.insert(user.getAccount());
             fileWriter.close();
-            System.out.println("User successfully to the file.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -51,33 +47,31 @@ public class UserRepository implements IRepository<User, UUID> {
     //region [ - insert(ArrayList<User> users) - ]
     @Override
     public void insert(ArrayList<User> users) {
-        File file = new File("src/file/User.txt");
-        if (file.delete()) {
-            file = new File("src/file/User.txt");
-        }
-        for (User u : users) {
-            try {
-                FileWriter fileWriter = new FileWriter("src/file/User.txt", true);
-                fileWriter.write(u.getInformation());
-                fileWriter.close();
-                System.out.println("User successfully to the file.");
-            } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-            }
+        try {
+            FileWriter fileWriter = new FileWriter("src/file/User.txt", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+            users.forEach(this::insert);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
     }
-    //endregion
+//endregion
 
     //region [ - update(User user) - ]
     @Override
     public void update(User user) {
         ArrayList<User> users = select();
         ArrayList<Account> accounts = accountRepository.select();
-        users.stream().filter(u -> u.getId() == user.getId()).findFirst().ifPresent(this::delete);
-        accounts.stream().filter(a -> a.getId() == user.getAccount().getId()).findFirst().ifPresent(accountRepository::delete);
-        accountRepository.insert(user.getAccount());
-        insert(user);
+        accounts.stream().filter(a -> a.getId().equals(user.getAccount().getId())).findFirst().ifPresent(accounts::remove);
+        accounts.add(user.getAccount());
+        users.stream().filter(u -> u.getId().equals(user.getId())).findFirst().ifPresent(users::remove);
+        users.add(user);
+        accountRepository.insert(accounts);
+        insert(users);
     }
     //endregion
 
@@ -86,16 +80,18 @@ public class UserRepository implements IRepository<User, UUID> {
     public void delete(User user) {
         ArrayList<User> users = select();
         ArrayList<Account> accounts = accountRepository.select();
-        accounts.stream().filter(a -> a.getId() == user.getAccount().getId()).findFirst().ifPresent(accountRepository::delete);
-        users.remove(user);
+        accounts.stream().filter(a -> a.getId().equals(user.getAccount().getId())).findFirst().ifPresent(users::remove);
         insert(users);
     }
-    //endregion
+   //endregion
 
     //region [ - delete(UUID id) - ]
     public void delete(UUID id) {
         ArrayList<User> users = select();
-        users.remove(users.stream().filter(a -> a.getId().equals(id)).findFirst().get());
+        ArrayList<Account> accounts = accountRepository.select();
+        accounts.stream().filter(a -> a.getId().equals(id)).findFirst().ifPresent(accounts::remove);
+        users.stream().filter(a -> a.getId().equals(id)).findFirst().ifPresent(users::remove);
+        accountRepository.insert(accounts);
         insert(users);
     }
     //endregion
@@ -123,7 +119,8 @@ public class UserRepository implements IRepository<User, UUID> {
                     case 3 -> user.setFirstName(myReader.next());
                     case 4 -> user.setLastName(myReader.next());
                     case 5 -> user.setAge(myReader.nextInt());
-                    case 6 -> user.setAccount(accounts.stream().filter(a -> a.getId().equals(accountId)).findFirst().get());
+                    case 6 ->
+                            user.setAccount(accounts.stream().filter(a -> a.getId().equals(accountId)).findFirst().get());
                     case 7 -> user.setSignUpDate(LocalDate.parse(myReader.next()));
                 }
 
@@ -147,7 +144,7 @@ public class UserRepository implements IRepository<User, UUID> {
         return users;
     }
 
-    //endregion
+//endregion
 
     //region [ - select(UUID id) - ]
     @Override
@@ -157,8 +154,8 @@ public class UserRepository implements IRepository<User, UUID> {
 //        user.setAccount(accounts.stream().filter(a -> a.getId() == user.getAccount().getId()).findFirst().get());
         return user;
     }
-    //endregion
+//endregion
 
-    //endregion
+//endregion
 
 }

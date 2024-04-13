@@ -123,30 +123,16 @@ public class UserService {
     //endregion
 
     //region [ - edit(User editedUser) - ]
-    public void edit(User editedUser) {
+    public User edit(User user) {
         if (!user.getAccount().getHasLoggedIn()) {
             System.out.println("You haven't logged in");
-            return;
-        }
-        if (editedUser.getUsername() != null) user.setUsername(editedUser.getUsername());
-        if (editedUser.getFirstName() != null) user.setFirstName(editedUser.getFirstName());
-        if (editedUser.getLastName() != null) user.setLastName(editedUser.getLastName());
-        if (editedUser.getAge() != 0) user.setAge(editedUser.getAge());
-        if (editedUser.getAccount().getEmail() != null) {
-            if (editedUser.getAccount().getPassword() != null) {
-                user.setAccount(new Account(user.getAccount().getId(), editedUser.getAccount().getEmail(), editedUser.getAccount().getPassword()));
-            } else {
-                user.setAccount(new Account(user.getAccount().getId(), editedUser.getAccount().getEmail(), user.getAccount().getPassword()));
-            }
         } else {
-            if (editedUser.getAccount().getPassword() != null) {
-                user.setAccount(new Account(user.getAccount().getId(), user.getAccount().getEmail(), editedUser.getAccount().getPassword()));
-            } else {
-                user.setAccount(new Account(user.getAccount().getId(), user.getAccount().getEmail(), user.getAccount().getPassword()));
+            if (validate(user)) {
+                userRepository.update(user);
+                return user;
             }
         }
-
-        userRepository.update(user);
+        return null;
     }
     //endregion
 
