@@ -1,6 +1,7 @@
 package Model.Repository;
 
 import Model.DTO.*;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -61,9 +62,10 @@ public class UserPostRepository {
 
     //region [ - update(UserPost userpost) - ]
     public void update(UserPost userpost) {
-        ArrayList<UserPost> userposts = select();
-        userposts.stream().filter(up -> up.getUserId() == userpost.getUserId() && up.getPost().getId() == userpost.getPost().getId()).findFirst().ifPresent(this::delete);
-        insert(userpost);
+        ArrayList<UserPost> userPosts = select();
+        userPosts.stream().filter(up -> up.getUser().getId().equals(userpost.getUser().getId()) && up.getPost().getId().equals(userpost.getPost().getId())).findFirst().ifPresent(userPosts::remove);
+        userPosts.add(userpost);
+        insert(userPosts);
     }
     //endregion
 
@@ -105,8 +107,7 @@ public class UserPostRepository {
                 switch (counter) {
                     case 1 -> userPost.setUser(users.stream().filter(u -> u.getId().equals(userId)).findFirst().get());
                     case 2 -> userPost.setPost(posts.stream().filter(p -> p.getId().equals(subRedditId)).findFirst().get());
-//                    case 3 -> userPost.setVote(myReader.nextBoolean());
-                    case 3 -> userPost.setVote(Boolean.parseBoolean(myReader.next()));
+                    case 3 -> userPost.setVote(BooleanUtils.toBooleanObject((myReader.next())));
                 }
 
                 if (counter == 3) {
